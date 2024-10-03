@@ -1,17 +1,13 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Diagnostics;
-
-using Machina;
 using Machina.Types.Geometry;
 using SysQuat = System.Numerics.Quaternion;
-using SysVec = System.Numerics.Vector3;
 using SysMatrix44 = System.Numerics.Matrix4x4;
-using System.Collections.Generic;
+using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace DataTypesTests
 {
-    [TestClass]
     public class QuaternionTests : DataTypesTests
     {
 
@@ -30,7 +26,7 @@ namespace DataTypesTests
         /// A general test that goes over Quaternions and checks basic Normalization,
         /// Length, and versor and null checks.
         /// </summary>
-        [TestMethod]
+        [Test]
         public void Quaternion_Normalization_Lengths_Units_Zeros()
         {
             Quaternion q;
@@ -58,17 +54,18 @@ namespace DataTypesTests
                 // Did the quaternion get normalized? It should probably be different than the randomly gen on
                 len2 = Math.Sqrt(q.W * q.W + q.X * q.X + q.Y * q.Y + q.Z * q.Z);
                 Trace.WriteLine(q + " " + len2);
-                Assert.AreNotEqual(len, len2, 0.00000001);
+                Assert.That(len, Is.Not.EqualTo(len2).Within(0.00000001));
+
 
                 // Is Length working?
                 len = q.Length();
                 Trace.WriteLine(q + " " + len2);
-                Assert.AreEqual(len2, len, 0.0000001);
+                ClassicAssert.AreEqual(len2, len, 0.0000001);
 
                 // In Normalize working?
                 norm = q.Normalize();
                 len2 = q.Length();
-                Assert.AreEqual(1, len2, 0.0000001);
+                ClassicAssert.AreEqual(1, len2, 0.0000001);
             }
 
             // Test all permutations of unitary components quaternions (including zero)
@@ -100,26 +97,26 @@ namespace DataTypesTests
                             // Is Zero/Identity Quaternion properly handled?
                             if ((w == 0 || w == 1 || w == -1) && x == 0 && y == 0 && z == 0)
                             {
-                                Assert.IsTrue(q.IsIdentity(), "Failed IsIdentity()");
+                                ClassicAssert.IsTrue(q.IsIdentity(), "Failed IsIdentity()");
                             }
                             else
                             {
-                                Assert.IsFalse(q.IsIdentity(), "Failed IsIdentity()");
+                                ClassicAssert.IsFalse(q.IsIdentity(), "Failed IsIdentity()");
                             }
 
                             // Is Length working?
                             len = Math.Sqrt(q.W * q.W + q.X * q.X + q.Y * q.Y + q.Z * q.Z);
                             Trace.WriteLine(q + " " + len);
-                            Assert.AreEqual(len, q.Length(), 0.0000001, "Failed Length() for " + q);
+                            ClassicAssert.AreEqual(len, q.Length(), 0.0000001, "Failed Length() for " + q);
 
                             // Is Unit() working?
                             if (Math.Abs(len - 1) < 0.0000001)
                             {
-                                Assert.IsTrue(q.IsUnit());
+                                ClassicAssert.IsTrue(q.IsUnit());
                             }
                             else
                             {
-                                Assert.IsFalse(q.IsUnit());
+                                ClassicAssert.IsFalse(q.IsUnit());
                             }
 
                             // In Normalize working?
@@ -127,12 +124,12 @@ namespace DataTypesTests
                             Trace.WriteLine(q + " " + len);
 
                             len = Math.Sqrt(q.W * q.W + q.X * q.X + q.Y * q.Y + q.Z * q.Z);
-                            Assert.AreEqual(1, len, 0.0000001, "Failed Normalize() for " + q);
+                            ClassicAssert.AreEqual(1, len, 0.0000001, "Failed Normalize() for " + q);
 
 
                             // Is Length working?
                             Trace.WriteLine(q + " " + len);
-                            Assert.AreEqual(len, q.Length(), 0.0000001, "Failed normalized Length()");
+                            ClassicAssert.AreEqual(len, q.Length(), 0.0000001, "Failed normalized Length()");
 
                         }
                     }
@@ -141,7 +138,7 @@ namespace DataTypesTests
         }
 
         // Any Quaternion is correctly normalized
-        [TestMethod]
+        [Test]
         public void Quaternion_Normalization()
         {
             Quaternion q;
@@ -166,12 +163,12 @@ namespace DataTypesTests
                 // Raw check
                 len = Math.Sqrt(q.W * q.W + q.X * q.X + q.Y * q.Y + q.Z * q.Z);
                 Trace.WriteLine(len);
-                Assert.AreEqual(1, len, 0.000001);
+                ClassicAssert.AreEqual(1, len, 0.000001);
 
                 // .Length() check
                 len = q.Length();
                 Trace.WriteLine(len);
-                Assert.AreEqual(1, len, 0.0000001);
+                ClassicAssert.AreEqual(1, len, 0.0000001);
             }
 
             // Test all permutations of unitary components quaternions (including zero)
@@ -192,12 +189,12 @@ namespace DataTypesTests
                             // Raw check
                             len = Math.Sqrt(q.W * q.W + q.X * q.X + q.Y * q.Y + q.Z * q.Z);
                             Trace.WriteLine(len);
-                            Assert.AreEqual(1, len, 0.000001);
+                            ClassicAssert.AreEqual(1, len, 0.000001);
 
                             // .Length() check
                             len = q.Length();
                             Trace.WriteLine(len);
-                            Assert.AreEqual(1, len, 0.0000001);
+                            ClassicAssert.AreEqual(1, len, 0.0000001);
                         }
                     }
                 }
@@ -207,7 +204,7 @@ namespace DataTypesTests
         /// <summary>
         /// The result of normalizing a zero-quaternion should be the positive identity quaternion.
         /// </summary>
-        [TestMethod]
+        [Test]
         public void Quaternion_VectorNormalizeZeroQuaternion()
         {
             Quaternion q;
@@ -218,16 +215,16 @@ namespace DataTypesTests
             Trace.WriteLine("0 0 0 0");
             Trace.WriteLine(q);
 
-            Assert.AreEqual(1, q.W, 0.00001);
-            Assert.AreEqual(0, q.X, 0.00001);
-            Assert.AreEqual(0, q.Y, 0.00001);
-            Assert.AreEqual(0, q.Z, 0.00001);
+            ClassicAssert.AreEqual(1, q.W, 0.00001);
+            ClassicAssert.AreEqual(0, q.X, 0.00001);
+            ClassicAssert.AreEqual(0, q.Y, 0.00001);
+            ClassicAssert.AreEqual(0, q.Z, 0.00001);
         }
 
         /// <summary>
         /// Identity quaternions should remain the same on creation.
         /// </summary>
-        [TestMethod]
+        [Test]
         public void Quaternion_VectorNormalizeIdentityQuaternions()
         {
             Quaternion q;
@@ -236,26 +233,26 @@ namespace DataTypesTests
             Trace.WriteLine("");
             Trace.WriteLine(q);
 
-            Assert.AreEqual(1, q.W, 0.00001);
-            Assert.AreEqual(0, q.X, 0.00001);
-            Assert.AreEqual(0, q.Y, 0.00001);
-            Assert.AreEqual(0, q.Z, 0.00001);
-            Assert.IsTrue(q.NormalizeVector());
+            ClassicAssert.AreEqual(1, q.W, 0.00001);
+            ClassicAssert.AreEqual(0, q.X, 0.00001);
+            ClassicAssert.AreEqual(0, q.Y, 0.00001);
+            ClassicAssert.AreEqual(0, q.Z, 0.00001);
+            ClassicAssert.IsTrue(q.NormalizeVector());
 
             q = new Quaternion(-1, 0, 0, 0);
             Trace.WriteLine("");
             Trace.WriteLine(q);
-            Assert.AreEqual(-1, q.W, 0.00001);
-            Assert.AreEqual(0, q.X, 0.00001);
-            Assert.AreEqual(0, q.Y, 0.00001);
-            Assert.AreEqual(0, q.Z, 0.00001);
-            Assert.IsTrue(q.NormalizeVector());
+            ClassicAssert.AreEqual(-1, q.W, 0.00001);
+            ClassicAssert.AreEqual(0, q.X, 0.00001);
+            ClassicAssert.AreEqual(0, q.Y, 0.00001);
+            ClassicAssert.AreEqual(0, q.Z, 0.00001);
+            ClassicAssert.IsTrue(q.NormalizeVector());
         }
 
         /// <summary>
         /// Quaternions with no rotation vector should normalize to identity vector.
         /// </summary>
-        [TestMethod]
+        [Test]
         public void Quaternion_VectorNormalizeZeroAxisQuaternions()
         {
             Quaternion q;
@@ -268,11 +265,11 @@ namespace DataTypesTests
                 Trace.WriteLine(w + " 0 0 0");
                 q = new Quaternion(w, 0, 0, 0);
                 Trace.WriteLine(q);
-                Assert.AreEqual(w >= 0 ? 1 : -1, q.W, 0.00001);
-                Assert.AreEqual(0, q.X, 0.00001);
-                Assert.AreEqual(0, q.Y, 0.00001);
-                Assert.AreEqual(0, q.Z, 0.00001);
-                Assert.IsTrue(q.NormalizeVector());
+                ClassicAssert.AreEqual(w >= 0 ? 1 : -1, q.W, 0.00001);
+                ClassicAssert.AreEqual(0, q.X, 0.00001);
+                ClassicAssert.AreEqual(0, q.Y, 0.00001);
+                ClassicAssert.AreEqual(0, q.Z, 0.00001);
+                ClassicAssert.IsTrue(q.NormalizeVector());
             }
         }
 
@@ -281,7 +278,7 @@ namespace DataTypesTests
         /// <summary>
         /// Tests Q -> AA -> Q
         /// </summary>
-        [TestMethod]
+        [Test]
         public void Quaternion_ToAxisAngle_ToQuaternion()
         {
             Quaternion q1, q2;
@@ -309,7 +306,7 @@ namespace DataTypesTests
                 q2 = aa.ToQuaternion();
                 Trace.WriteLine(q2);
 
-                Assert.IsTrue(q1.IsSimilar(q2), "Booo! :(");
+                ClassicAssert.IsTrue(q1.IsSimilar(q2), "Booo! :(");
             }
 
             // Test all permutations of unitary components quaternions (including zero)
@@ -342,11 +339,11 @@ namespace DataTypesTests
                                    AxisAngle[0, 0, 0, 360]
                                    Quaternion[1, 0, 0, 0]
                                  */
-                                Assert.IsTrue(q2.IsIdentity());  
+                                ClassicAssert.IsTrue(q2.IsIdentity());  
                             }
                             else
                             {
-                                Assert.IsTrue(q1.IsSimilar(q2), "Booo!");
+                                ClassicAssert.IsTrue(q1.IsSimilar(q2), "Booo!");
                             }
                             
                         }
@@ -363,7 +360,7 @@ namespace DataTypesTests
         /// like squares and square roots. This means that a Quaternion Q1 having a leading component below -0.5
         /// will result in a conversed Quaternion Q2 of opposite sign (i.e. Q1 = -Q2), yet still an equivalent one.
         /// </summary>
-        [TestMethod]
+        [Test]
         public void Quaternion_ToRotationMatrix_ToQuaternion()
         {
             Quaternion q1, q2;
@@ -415,7 +412,7 @@ namespace DataTypesTests
 
                 // NOTE: second quaternion might be the opposite sign, i.e. q1 = -q2. 
                 // Note that all quaternions multiplied by a real number (-1 in this case) represent the same spatial rotation
-                Assert.IsTrue(q1.IsEquivalent(q2), "Booo! :(");
+                ClassicAssert.IsTrue(q1.IsEquivalent(q2), "Booo! :(");
             }
 
 
@@ -446,7 +443,7 @@ namespace DataTypesTests
                             Trace.WriteLine(sm);
                             Trace.WriteLine(sq2);
 
-                            Assert.IsTrue(q1.IsEquivalent(q2), "Booo! :(");
+                            ClassicAssert.IsTrue(q1.IsEquivalent(q2), "Booo! :(");
                         }
                     }
                 }
@@ -458,7 +455,7 @@ namespace DataTypesTests
         /// Do equivalent (but not equal) Quaternions yield the same Rotation Matrix? 
         /// This is checked by scaking the first quaternion by a random factor.
         /// </summary>
-        [TestMethod]
+        [Test]
         public void Quaternion_ToRotationMatrix_FromEquivalentQuaternions()
         {
             Quaternion q1, q2;
@@ -487,7 +484,7 @@ namespace DataTypesTests
                 Trace.WriteLine(q2);
                 Trace.WriteLine(m2);
 
-                Assert.IsTrue(m1.IsSimilar(m2));
+                ClassicAssert.IsTrue(m1.IsSimilar(m2));
             }
 
             factor = -1;
@@ -512,7 +509,7 @@ namespace DataTypesTests
                             Trace.WriteLine(q2);
                             Trace.WriteLine(m2);
 
-                            Assert.IsTrue(m1.IsSimilar(m2));
+                            ClassicAssert.IsTrue(m1.IsSimilar(m2));
                         }
                     }
                 }
@@ -520,7 +517,7 @@ namespace DataTypesTests
         }
 
 
-        [TestMethod]
+        [Test]
         public void Quaternion_ToYawPitchRoll_ToQuaternion()
         {
             Quaternion q1, q2, q3;
@@ -550,9 +547,9 @@ namespace DataTypesTests
                 Trace.WriteLine(eu2);  // just for testing...
                 Trace.WriteLine(q3);  // and this one too...
 
-                Assert.IsTrue(q1.IsEquivalent(q2), "Not equivalent");
-                Assert.IsTrue(q2.IsSimilar(q3), "Not equal");
-                Assert.IsTrue(eu1.IsSimilar(eu2), "Euler angles not equal");
+                ClassicAssert.IsTrue(q1.IsEquivalent(q2), "Not equivalent");
+                ClassicAssert.IsTrue(q2.IsSimilar(q3), "Not equal");
+                ClassicAssert.IsTrue(eu1.IsSimilar(eu2), "Euler angles not equal");
             }
 
 
@@ -581,10 +578,10 @@ namespace DataTypesTests
                             Trace.WriteLine(q3);  // and this one too...
                             Trace.WriteLine(eu3);  // and even more!
 
-                            Assert.IsTrue(q1.IsEquivalent(q2), "Not equivalent");
-                            Assert.IsTrue(q2.IsSimilar(q3), "Not equal");
-                            Assert.IsTrue(eu1.IsSimilar(eu2), "Euler angles 12 not equal");
-                            Assert.IsTrue(eu2.IsSimilar(eu3), "Euler angles 23 not equal");
+                            ClassicAssert.IsTrue(q1.IsEquivalent(q2), "Not equivalent");
+                            ClassicAssert.IsTrue(q2.IsSimilar(q3), "Not equal");
+                            ClassicAssert.IsTrue(eu1.IsSimilar(eu2), "Euler angles 12 not equal");
+                            ClassicAssert.IsTrue(eu2.IsSimilar(eu3), "Euler angles 23 not equal");
                         }
                     }
                 }

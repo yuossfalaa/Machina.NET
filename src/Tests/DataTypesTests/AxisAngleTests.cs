@@ -1,17 +1,13 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Diagnostics;
-
-using Machina;
 using Machina.Types.Geometry;
-
+using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using SysQuat = System.Numerics.Quaternion;
 using SysVec = System.Numerics.Vector3;
-using SysMatrix44 = System.Numerics.Matrix4x4;
 
 namespace DataTypesTests
 {
-    [TestClass]
     public class AxisAngleTests : DataTypesTests
     {
 
@@ -26,7 +22,7 @@ namespace DataTypesTests
         /// <summary>
         /// Are new AxisAngle objects normalized?
         /// </summary>
-        [TestMethod]
+        [Test]
         public void AxisAngle_NormalizedOnCreation()
         {
             AxisAngle aa;
@@ -53,13 +49,14 @@ namespace DataTypesTests
                 len2 = Math.Sqrt(aa.X * aa.X + aa.Y * aa.Y + aa.Z * aa.Z);
                 Trace.WriteLine(len);
                 Trace.WriteLine(len2);
-                Assert.AreNotEqual(len, len2, 0.000001);
-                Assert.AreEqual(1, len2, 0.000001);
+                Assert.That(len, Is.Not.EqualTo(len2).Within(0.000001));
+
+                ClassicAssert.AreEqual(1, len2, 0.000001);
 
                 // .AxisLength() check
                 len = aa.AxisLength();
                 Trace.WriteLine(len);
-                Assert.AreEqual(1, len, 0.0000001);
+                ClassicAssert.AreEqual(1, len, 0.0000001);
             }
 
             // Test all permutations of unitary components (including zero)
@@ -82,12 +79,12 @@ namespace DataTypesTests
                             len2 = Math.Sqrt(aa.X * aa.X + aa.Y * aa.Y + aa.Z * aa.Z);
                             Trace.WriteLine(len);
                             Trace.WriteLine(len2);
-                            Assert.AreEqual(len == 0 ? 0 : 1, len2, 0.000001);
+                            ClassicAssert.AreEqual(len == 0 ? 0 : 1, len2, 0.000001);
 
                             // .AxisLength() check
                             len2 = aa.AxisLength();
                             Trace.WriteLine(len);
-                            Assert.AreEqual(len == 0 ? 0 : 1, len2, 0.0000001);
+                            ClassicAssert.AreEqual(len == 0 ? 0 : 1, len2, 0.0000001);
                         }
                     }
                 }
@@ -99,7 +96,7 @@ namespace DataTypesTests
         /// .IsZero() returns true if this AxisAngle represents no rotation: 
         /// zero rotation axis or zero angle.
         /// </summary>
-        [TestMethod]
+        [Test]
         public void AxisAngle_IsZero()
         {
             AxisAngle aa;
@@ -123,7 +120,7 @@ namespace DataTypesTests
                             Trace.WriteLine(aa);
 
                             zero = angle % 360 == 0 || (aa.X == 0 && aa.Y == 0 && aa.Z == 0);
-                            Assert.AreEqual(zero, aa.IsZero());
+                            ClassicAssert.AreEqual(zero, aa.IsZero());
                         }
                     }
                 }
@@ -133,47 +130,48 @@ namespace DataTypesTests
         /// <summary>
         /// Quick manual equivalence tests
         /// </summary>
-        [TestMethod]
+        [Test]
         public void AxisAngle_Equivalence()
         {
             AxisAngle a = new AxisAngle(0, 0, 1, 45);
             AxisAngle b = new AxisAngle(0, 0, 1, 45 + 360);
             Trace.WriteLine(a);
             Trace.WriteLine(b);
-            Assert.IsTrue(a.IsEquivalent(b));
-            Assert.IsTrue(b.IsEquivalent(a));
+            ClassicAssert.IsTrue(a.IsEquivalent(b));
+            ClassicAssert.IsTrue(b.IsEquivalent(a));
 
             b = new AxisAngle(0, 0, 1, 45 - 360);
             Trace.WriteLine(b);
-            Assert.IsTrue(a.IsEquivalent(b));
+            ClassicAssert.IsTrue(a.IsEquivalent(b));
 
             b = new AxisAngle(0, 0, -1, -45);
             Trace.WriteLine(b);
-            Assert.IsTrue(a.IsEquivalent(b));
+            ClassicAssert.IsTrue(a.IsEquivalent(b));
 
             b = new AxisAngle(0, 0, -1, -45 - 360);
             Trace.WriteLine(b);
-            Assert.IsTrue(a.IsEquivalent(b));
+            ClassicAssert.IsTrue(a.IsEquivalent(b));
 
             b = new AxisAngle(0, 0, -1, -45 + 360);
             Trace.WriteLine(b);
-            Assert.IsTrue(a.IsEquivalent(b));
+            ClassicAssert.IsTrue(a.IsEquivalent(b));
 
             b = new AxisAngle(0, 0, 10, 45);
             Trace.WriteLine(b);
-            Assert.IsTrue(a.IsEquivalent(b));
+            ClassicAssert.IsTrue(a.IsEquivalent(b));
 
             // Zero vectors
             a = new AxisAngle(0, 0, 0, 0);
             Trace.WriteLine(a);
-            for (var i = 0; i < 50; i++) {
+            for (var i = 0; i < 50; i++)
+            {
                 b = new AxisAngle(Random(-10, 10), Random(-10, 10), Random(-10, 10), RandomInt(-3, 3) * 360);
                 Trace.WriteLine(b);
 
-                Assert.IsTrue(a.IsEquivalent(b));
-                Assert.IsTrue(b.IsEquivalent(a));
+                ClassicAssert.IsTrue(a.IsEquivalent(b));
+                ClassicAssert.IsTrue(b.IsEquivalent(a));
             }
-            
+
         }
 
 
@@ -182,7 +180,7 @@ namespace DataTypesTests
         /// AxisAngle to Quaternion conversion tests.
         /// Using System.Numerics.Quaternion for comparison.
         /// </summary>
-        [TestMethod]
+        [Test]
         public void AxisAngle_ToQuaternionConversion()
         {
             AxisAngle aa;
@@ -217,10 +215,10 @@ namespace DataTypesTests
                 sq = SysQuat.CreateFromAxisAngle(normV, (float)(angle * Math.PI / 180.0));  // now this Quaternion SHOULD be normalized...
                 Trace.WriteLine(sq + " length: " + sq.Length());
 
-                Assert.AreEqual(q.W, sq.W, 0.000001, "Failed W");  // can't go very precise due to float imprecision in sys quat
-                Assert.AreEqual(q.X, sq.X, 0.000001, "Failed X");
-                Assert.AreEqual(q.Y, sq.Y, 0.000001, "Failed Y");
-                Assert.AreEqual(q.Z, sq.Z, 0.000001, "Failed Z");
+                ClassicAssert.AreEqual(q.W, sq.W, 0.000001, "Failed W");  // can't go very precise due to float imprecision in sys quat
+                ClassicAssert.AreEqual(q.X, sq.X, 0.000001, "Failed X");
+                ClassicAssert.AreEqual(q.Y, sq.Y, 0.000001, "Failed Y");
+                ClassicAssert.AreEqual(q.Z, sq.Z, 0.000001, "Failed Z");
             }
 
             // Test all permutations of unitary components quaternions (including zero)
@@ -248,7 +246,7 @@ namespace DataTypesTests
 
                             if (zero)
                             {
-                                Assert.IsTrue(new Quaternion(1, 0, 0, 0).IsSimilar(q), "Failed zero quaternion");
+                                ClassicAssert.IsTrue(new Quaternion(1, 0, 0, 0).IsSimilar(q), "Failed zero quaternion");
                             }
                             else
                             {
@@ -259,10 +257,10 @@ namespace DataTypesTests
                                 sq = SysQuat.CreateFromAxisAngle(normV, (float)(angle * Math.PI / 180.0));  // now this Quaternion SHOULD be normalized...
                                 Trace.WriteLine(sq + " length: " + sq.Length());
 
-                                Assert.AreEqual(q.W, sq.W, 0.000001, "Failed W");  // can't go very precise due to float imprecision in sys quat
-                                Assert.AreEqual(q.X, sq.X, 0.000001, "Failed X");
-                                Assert.AreEqual(q.Y, sq.Y, 0.000001, "Failed Y");
-                                Assert.AreEqual(q.Z, sq.Z, 0.000001, "Failed Z");
+                                ClassicAssert.AreEqual(q.W, sq.W, 0.000001, "Failed W");  // can't go very precise due to float imprecision in sys quat
+                                ClassicAssert.AreEqual(q.X, sq.X, 0.000001, "Failed X");
+                                ClassicAssert.AreEqual(q.Y, sq.Y, 0.000001, "Failed Y");
+                                ClassicAssert.AreEqual(q.Z, sq.Z, 0.000001, "Failed Z");
                             }
                         }
                     }
@@ -275,7 +273,7 @@ namespace DataTypesTests
         /// Does AA to Q to AA work correctly?
         /// Test simple case where AA! rotation is [0, 360]
         /// </summary>
-        [TestMethod]
+        [Test]
         public void AxisAngle_ToQuaternion_ToAxisAngle_Simple()
         {
             AxisAngle aa1, aa2;
@@ -301,7 +299,7 @@ namespace DataTypesTests
                 Trace.WriteLine(q);
                 Trace.WriteLine(aa2);
 
-                Assert.IsTrue(aa1.IsSimilar(aa2), "Boooo! :(");
+                ClassicAssert.IsTrue(aa1.IsSimilar(aa2), "Boooo! :(");
             }
 
 
@@ -327,15 +325,15 @@ namespace DataTypesTests
                             // Deal with zero angles
                             if (aa1.IsZero())
                             {
-                                Assert.IsTrue(aa1.IsZero());
-                                Assert.IsTrue(q.IsIdentity());
-                                Assert.IsTrue(aa2.IsZero());
+                                ClassicAssert.IsTrue(aa1.IsZero());
+                                ClassicAssert.IsTrue(q.IsIdentity());
+                                ClassicAssert.IsTrue(aa2.IsZero());
                             }
                             else
                             {
-                                Assert.IsTrue(aa1.IsSimilar(aa2), "Booooo! :(");
+                                ClassicAssert.IsTrue(aa1.IsSimilar(aa2), "Booooo! :(");
                             }
-                            
+
                         }
                     }
                 }
@@ -346,7 +344,7 @@ namespace DataTypesTests
         /// Perform AA > Q > AA conversion from a AA1 with negative angle.
         /// Uses a .Flip() operation for comparison.
         /// </summary>
-        [TestMethod]
+        [Test]
         public void AxisAngle_ToQuaternion_ToAxisAngle_Negative()
         {
             AxisAngle aa1, aa2;
@@ -375,7 +373,7 @@ namespace DataTypesTests
                 aa2.Flip();  // from quaternion conversion, aa2 will be inverted. Flip for comparison
                 Trace.WriteLine(aa2 + " (flipped)");
 
-                Assert.IsTrue(aa1.IsSimilar(aa2), "Boooo! :(");
+                ClassicAssert.IsTrue(aa1.IsSimilar(aa2), "Boooo! :(");
             }
         }
 
@@ -383,7 +381,7 @@ namespace DataTypesTests
         /// Test AA > Q > AA conversion for ANY angle.
         /// A .Modulate() operation is performed if angle is outside [0, 360] for comparison.
         /// </summary>
-        [TestMethod]
+        [Test]
         public void AxisAngle_ToQuaternion_ToAxisAngle_Modulation()
         {
             AxisAngle aa1, aa2;
@@ -420,13 +418,13 @@ namespace DataTypesTests
                     Trace.WriteLine(q);
                     Trace.WriteLine(aa2);
                 }
-                
+
                 // Now this should work
-                Assert.IsTrue(aa1.IsSimilar(aa2));
+                ClassicAssert.IsTrue(aa1.IsSimilar(aa2));
             }
         }
 
-        [TestMethod]
+        [Test]
         public void AxisAngle_ToRotationMatrix_ToAxisAngle()
         {
             AxisAngle aa, aabis;
@@ -453,7 +451,7 @@ namespace DataTypesTests
                 Trace.WriteLine(m);
                 Trace.WriteLine(aabis);
 
-                Assert.IsTrue(aa.IsEquivalent(aabis));
+                ClassicAssert.IsTrue(aa.IsEquivalent(aabis));
             }
 
             // Test singularities
@@ -472,12 +470,12 @@ namespace DataTypesTests
                 Trace.WriteLine(m);
                 Trace.WriteLine(aabis);
 
-                Assert.IsTrue(aa.IsEquivalent(aabis));
+                ClassicAssert.IsTrue(aa.IsEquivalent(aabis));
             }
 
         }
 
-        [TestMethod]
+        [Test]
         public void AxisAngle_ToYawPitchRoll_ComparisonThroughRotationMatrix()
         {
             AxisAngle aa;
@@ -505,7 +503,7 @@ namespace DataTypesTests
                 Trace.WriteLine(aa + " --> " + eu1);
                 Trace.WriteLine(aa + " --> " + m + " --> " + eu2);
 
-                Assert.IsTrue(eu1.IsSimilar(eu2));
+                ClassicAssert.IsTrue(eu1.IsSimilar(eu2));
             }
 
             // Test singularities
@@ -524,11 +522,11 @@ namespace DataTypesTests
                 Trace.WriteLine(aa + " --> " + eu1);
                 Trace.WriteLine(aa + " --> " + m + " --> " + eu2);
 
-                Assert.IsTrue(eu1.IsSimilar(eu2));
+                ClassicAssert.IsTrue(eu1.IsSimilar(eu2));
             }
         }
 
-        [TestMethod]
+        [Test]
         public void AxisAngle_ToYawPitchRoll_ToAxisAngle()
         {
             AxisAngle aa1, aa2, aa3;
@@ -558,10 +556,10 @@ namespace DataTypesTests
                 Trace.WriteLine("--> " + aa2 + " --> " + eu2);
                 Trace.WriteLine("--> " + aa3 + " --> " + eu3);
 
-                Assert.IsTrue(aa1.IsEquivalent(aa2));
-                Assert.IsTrue(aa2.IsSimilar(aa3));
-                Assert.IsTrue(eu1.IsSimilar(eu2));
-                Assert.IsTrue(eu2.IsSimilar(eu3));
+                ClassicAssert.IsTrue(aa1.IsEquivalent(aa2));
+                ClassicAssert.IsTrue(aa2.IsSimilar(aa3));
+                ClassicAssert.IsTrue(eu1.IsSimilar(eu2));
+                ClassicAssert.IsTrue(eu2.IsSimilar(eu3));
             }
 
             // Test singularities
@@ -583,10 +581,10 @@ namespace DataTypesTests
                 Trace.WriteLine("--> " + aa2 + " --> " + eu2);
                 Trace.WriteLine("--> " + aa3 + " --> " + eu3);
 
-                Assert.IsTrue(aa1.IsEquivalent(aa2));
-                Assert.IsTrue(aa2.IsSimilar(aa3));
-                Assert.IsTrue(eu1.IsSimilar(eu2));
-                Assert.IsTrue(eu2.IsSimilar(eu3));
+                ClassicAssert.IsTrue(aa1.IsEquivalent(aa2));
+                ClassicAssert.IsTrue(aa2.IsSimilar(aa3));
+                ClassicAssert.IsTrue(eu1.IsSimilar(eu2));
+                ClassicAssert.IsTrue(eu2.IsSimilar(eu3));
             }
         }
     }

@@ -1,22 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 
 using Machina;
 using Machina.Types.Geometry;
 using Machina.Types.Data;
-using SysQuat = System.Numerics.Quaternion;
 using SysVec = System.Numerics.Vector3;
-using SysMatrix44 = System.Numerics.Matrix4x4;
-using Machina.Types;
+using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace RobotTests
 {
-    [TestClass]
     public class RobotMoveTests : RobotTests
     {
-        [TestMethod]
+        [Test]
         public void Robot_Move_Simple()
         {
             // Movement should be platform-agnostic.
@@ -46,7 +42,7 @@ namespace RobotTests
                 Trace.WriteLine(botpos);
                 Trace.WriteLine(syspos);
 
-                Assert.IsTrue(AreSimilar(botpos, syspos));
+                ClassicAssert.IsTrue(AreSimilar(botpos, syspos));
 
             }
 
@@ -72,13 +68,13 @@ namespace RobotTests
                 Trace.WriteLine(botpos);
                 Trace.WriteLine(syspos);
 
-                Assert.IsTrue(AreSimilar(botpos, syspos));
+                ClassicAssert.IsTrue(AreSimilar(botpos, syspos));
             }
 
         }
 
 
-        [TestMethod]
+        [Test]
         public void Robot_Rotate_Simple()
         {
             Robot bot = Robot.Create("foo", "ABB");

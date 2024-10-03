@@ -1,21 +1,14 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Diagnostics;
-
-using Machina;
 using Machina.Types.Geometry;
-
-using SysQuat = System.Numerics.Quaternion;
-using SysVec = System.Numerics.Vector3;
-using SysMatrix44 = System.Numerics.Matrix4x4;
-using System.Collections.Generic;
+using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace DataTypesTests
 {
-    [TestClass]
     public class YawPitchRollTests : DataTypesTests
     {
-        [TestMethod]
+        [Test]
         public void YawPitchRoll_ToQuaternion_ToYawPitchRoll()
         {
             YawPitchRoll eu1, eu2, eu3;
@@ -46,10 +39,10 @@ namespace DataTypesTests
                 Trace.WriteLine(eu3);
                 Trace.WriteLine(q3);
 
-                Assert.IsTrue(eu1.IsEquivalent(eu2), "eus not equiv");
-                Assert.IsTrue(eu2.IsSimilar(eu3), "Eulers not equal");
-                Assert.IsTrue(q1.IsEquivalent(q2), "Quats not equiv");
-                Assert.IsTrue(q2.IsSimilar(q3), "Quats not equal");
+                ClassicAssert.IsTrue(eu1.IsEquivalent(eu2), "eus not equiv");
+                ClassicAssert.IsTrue(eu2.IsSimilar(eu3), "Eulers not equal");
+                ClassicAssert.IsTrue(q1.IsEquivalent(q2), "Quats not equiv");
+                ClassicAssert.IsTrue(q2.IsSimilar(q3), "Quats not equal");
             }
 
             // Try orthogonal configurations
@@ -75,17 +68,17 @@ namespace DataTypesTests
                 Trace.WriteLine(eu3);
                 Trace.WriteLine(q3);
 
-                Assert.IsTrue(eu1.IsEquivalent(eu2), "eus not equiv");
-                Assert.IsTrue(eu2.IsSimilar(eu3), "Eulers not equal");
-                Assert.IsTrue(q1.IsEquivalent(q2), "Quats not equiv");
-                Assert.IsTrue(q2.IsSimilar(q3), "Quats not equal");
+                ClassicAssert.IsTrue(eu1.IsEquivalent(eu2), "eus not equiv");
+                ClassicAssert.IsTrue(eu2.IsSimilar(eu3), "Eulers not equal");
+                ClassicAssert.IsTrue(q1.IsEquivalent(q2), "Quats not equiv");
+                ClassicAssert.IsTrue(q2.IsSimilar(q3), "Quats not equal");
             }
 
 
         }
 
 
-        [TestMethod]
+        [Test]
         public void YawPitchRoll_ToQuaternion_ToYawPitchRoll_Singularities()
         {
             YawPitchRoll eu1, eu2;
@@ -126,21 +119,21 @@ namespace DataTypesTests
                 {
                     Trace.WriteLine("SINGULARITY");
 
-                    Assert.IsTrue(y > 90 - 0.03 || y < -90 + 0.03);
+                    ClassicAssert.IsTrue(y > 90 - 0.03 || y < -90 + 0.03);
                     // Is q == q or q = -q 
-                    Assert.IsTrue(
+                    ClassicAssert.IsTrue(
                         (Math.Abs(q1.W - q2.W) < 0.001 && Math.Abs(q1.X - q2.X) < 0.001 && Math.Abs(q1.Y - q2.Y) < 0.001 && Math.Abs(q1.Z - q2.Z) < 0.001)
                         || (Math.Abs(q1.W + q2.W) < 0.001 && Math.Abs(q1.X + q2.X) < 0.001 && Math.Abs(q1.Y + q2.Y) < 0.001 && Math.Abs(q1.Z + q2.Z) < 0.001));
                 }
                 else
                 {
-                    Assert.IsTrue(eu1.IsSimilar(eu2), "Eulers not equal");
-                    Assert.IsTrue(q1.IsSimilar(q2), "Quats not equal");
+                    ClassicAssert.IsTrue(eu1.IsSimilar(eu2), "Eulers not equal");
+                    ClassicAssert.IsTrue(q1.IsSimilar(q2), "Quats not equal");
                 }
             }
         }
 
-        [TestMethod]
+        [Test]
         public void YawPitchRoll_ToRotationMatrix_ToYawPitchRoll()
         {
             YawPitchRoll eu1, eu2, eu3;
@@ -171,10 +164,10 @@ namespace DataTypesTests
                 Trace.WriteLine(eu3);
                 Trace.WriteLine(m3);
 
-                Assert.IsTrue(eu1.IsEquivalent(eu2), "Eulers1 not equiv");
-                Assert.IsTrue(eu2.IsSimilar(eu3), "Eulers2 not equal");
-                Assert.IsTrue(m1.IsSimilar(m2), "Matrices1 not equiv");
-                Assert.IsTrue(m2.IsSimilar(m3), "Matrices2 not equal");
+                ClassicAssert.IsTrue(eu1.IsEquivalent(eu2), "Eulers1 not equiv");
+                ClassicAssert.IsTrue(eu2.IsSimilar(eu3), "Eulers2 not equal");
+                ClassicAssert.IsTrue(m1.IsSimilar(m2), "Matrices1 not equiv");
+                ClassicAssert.IsTrue(m2.IsSimilar(m3), "Matrices2 not equal");
             }
 
             // Try orthogonal configurations
@@ -200,15 +193,15 @@ namespace DataTypesTests
                 Trace.WriteLine(eu3 + " " + eu3.ToQuaternion());
                 Trace.WriteLine(m3);
 
-                Assert.IsTrue(eu1.IsEquivalent(eu2), "Eulers1 not equiv");
-                Assert.IsTrue(eu2.IsEquivalent(eu3), "Eulers2 not equal");
-                Assert.IsTrue(m1.IsSimilar(m2), "Matrices1 not equiv");
-                Assert.IsTrue(m2.IsSimilar(m3), "Matrices2 not equal");
+                ClassicAssert.IsTrue(eu1.IsEquivalent(eu2), "Eulers1 not equiv");
+                ClassicAssert.IsTrue(eu2.IsEquivalent(eu3), "Eulers2 not equal");
+                ClassicAssert.IsTrue(m1.IsSimilar(m2), "Matrices1 not equiv");
+                ClassicAssert.IsTrue(m2.IsSimilar(m3), "Matrices2 not equal");
             }
         }
 
 
-        [TestMethod]
+        [Test]
         public void YawPitchRoll_ToRotationMAtrix_ToYawPitchRoll_Singularities()
         {
             YawPitchRoll eu1, eu2;
@@ -239,25 +232,25 @@ namespace DataTypesTests
                 {
                     Trace.WriteLine("SINGULARITY");
 
-                    Assert.IsTrue(y > 90 - 0.03 || y < -90 + 0.03);
+                    ClassicAssert.IsTrue(y > 90 - 0.03 || y < -90 + 0.03);
                     // Is q == q or q = -q 
                     //Assert.IsTrue(eu1.ToQuaternion().IsEquivalent(eu2.ToQuaternion()));  // too precise of a comparison, yields errors
 
                     Quaternion q1 = eu1.ToQuaternion();
                     Quaternion q2 = eu2.ToQuaternion();
-                    Assert.IsTrue(
+                    ClassicAssert.IsTrue(
                             (Math.Abs(q1.W - q2.W) < 0.001 && Math.Abs(q1.X - q2.X) < 0.001 && Math.Abs(q1.Y - q2.Y) < 0.001 && Math.Abs(q1.Z - q2.Z) < 0.001)
                             || (Math.Abs(q1.W + q2.W) < 0.001 && Math.Abs(q1.X + q2.X) < 0.001 && Math.Abs(q1.Y + q2.Y) < 0.001 && Math.Abs(q1.Z + q2.Z) < 0.001));
                 }
                 else
                 {
-                    Assert.IsTrue(eu1 == eu2, "Eulers not equal");
-                    Assert.IsTrue(m1 == m2, "Quats not equal");
+                    ClassicAssert.IsTrue(eu1 == eu2, "Eulers not equal");
+                    ClassicAssert.IsTrue(m1 == m2, "Quats not equal");
                 }
             }
         }
 
-        [TestMethod]
+        [Test]
         public void YawPitchRoll_ToAxisAngle_ComparisonWithQuaternions()
         {
             YawPitchRoll eu1;
@@ -283,14 +276,14 @@ namespace DataTypesTests
                 Trace.WriteLine(eu1 + " --> " + aa1);
                 Trace.WriteLine(eu1 + " --> " + q + " --> " + aa2);
 
-                Assert.IsTrue(aa1.IsSimilar(aa2));
+                ClassicAssert.IsTrue(aa1.IsSimilar(aa2));
 
             }
         }
 
 
 
-        [TestMethod]
+        [Test]
         public void YawPitchRoll_ToAxisAngle_ToYawPitchRoll()
         {
             YawPitchRoll eu1, eu2, eu3;
@@ -318,10 +311,10 @@ namespace DataTypesTests
                 Trace.WriteLine("    " + eu2 + " --> " + aa2);
                 Trace.WriteLine("    " + eu3 + " --> " + aa3);
 
-                Assert.IsTrue(eu1.IsEquivalent(eu2), "Eulers1 not equiv");
-                Assert.IsTrue(eu2.IsSimilar(eu3), "Eulers2 not equal");
-                Assert.IsTrue(aa1.IsEquivalent(aa2), "AA1 not equal");
-                Assert.IsTrue(aa2.IsSimilar(aa3), "AA2 not equal");
+                ClassicAssert.IsTrue(eu1.IsEquivalent(eu2), "Eulers1 not equiv");
+                ClassicAssert.IsTrue(eu2.IsSimilar(eu3), "Eulers2 not equal");
+                ClassicAssert.IsTrue(aa1.IsEquivalent(aa2), "AA1 not equal");
+                ClassicAssert.IsTrue(aa2.IsSimilar(aa3), "AA2 not equal");
             }
 
             // Try orthogonal configurations
@@ -344,10 +337,10 @@ namespace DataTypesTests
                 Trace.WriteLine("    " + eu2 + " --> " + aa2);
                 Trace.WriteLine("    " + eu3 + " --> " + aa3);
 
-                Assert.IsTrue(eu1.IsEquivalent(eu2), "Eulers1 not equiv");
-                Assert.IsTrue(eu2.IsEquivalent(eu3), "Eulers2 not equal");
-                Assert.IsTrue(aa1.IsEquivalent(aa2), "AA1 not equal");
-                Assert.IsTrue(aa2.IsEquivalent(aa3), "AA2 not equal");
+                ClassicAssert.IsTrue(eu1.IsEquivalent(eu2), "Eulers1 not equiv");
+                ClassicAssert.IsTrue(eu2.IsEquivalent(eu3), "Eulers2 not equal");
+                ClassicAssert.IsTrue(aa1.IsEquivalent(aa2), "AA1 not equal");
+                ClassicAssert.IsTrue(aa2.IsEquivalent(aa3), "AA2 not equal");
             }
         }
     }

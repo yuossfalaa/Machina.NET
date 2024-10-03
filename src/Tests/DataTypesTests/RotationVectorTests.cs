@@ -1,18 +1,14 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Diagnostics;
-
-using Machina;
 using Machina.Types.Geometry;
-using SysQuat = System.Numerics.Quaternion;
-using Vector3 = System.Numerics.Vector3;
+using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace DataTypesTests
 {
-    [TestClass]
     public class RotationVectorTests : DataTypesTests
     {
-        [TestMethod]
+        [Test]
         public void RotationVector_Creation_PositiveAngle()
         {
             RotationVector rv;
@@ -40,15 +36,16 @@ namespace DataTypesTests
                 len2 = Math.Sqrt(rv.X * rv.X + rv.Y * rv.Y + rv.Z * rv.Z);
                 Trace.WriteLine(len);
                 Trace.WriteLine(len2);
-                Assert.AreNotEqual(len, len2, 0.000001);
-                Assert.AreEqual(angle, len2, 0.000001);
-                Assert.AreEqual(angle, rv.GetAngle(), 0.000001);
+                Assert.That(len, Is.Not.EqualTo(len2).Within(0.000001));
+
+                ClassicAssert.AreEqual(angle, len2, 0.000001);
+                ClassicAssert.AreEqual(angle, rv.GetAngle(), 0.000001);
 
                 v1 = new Vector(x, y, z);
                 v1.Normalize();
                 v2 = rv.GetVector();
 
-                Assert.IsTrue(v1.IsSimilar(v2));
+                ClassicAssert.IsTrue(v1.IsSimilar(v2));
             }
 
             // Test all permutations of unitary components (including zero)
@@ -74,20 +71,21 @@ namespace DataTypesTests
 
                             if (angle == 0 || len == 0)
                             {
-                                Assert.IsTrue(rv.IsZero());
-                                Assert.AreEqual(0, rv.GetAngle(), 0.000001);
+                                ClassicAssert.IsTrue(rv.IsZero());
+                                ClassicAssert.AreEqual(0, rv.GetAngle(), 0.000001);
                             }
                             else
                             {
-                                Assert.AreNotEqual(len, len2, 0.000001);
-                                Assert.AreEqual(angle, len2, 0.000001);
-                                Assert.AreEqual(angle, rv.GetAngle(), 0.000001);
+                                Assert.That(len, Is.Not.EqualTo(len2).Within(0.000001));
+
+                                ClassicAssert.AreEqual(angle, len2, 0.000001);
+                                ClassicAssert.AreEqual(angle, rv.GetAngle(), 0.000001);
 
                                 v1 = new Vector(x, y, z);
                                 v1.Normalize();
                                 v2 = rv.GetVector();
 
-                                Assert.IsTrue(v1.IsSimilar(v2));
+                                ClassicAssert.IsTrue(v1.IsSimilar(v2));
                             }
                         }
                     }
@@ -95,7 +93,7 @@ namespace DataTypesTests
             }
         }
 
-        [TestMethod]
+        [Test]
         public void RotationVector_Creation_NegativeAngle()
         {
             RotationVector rv;
@@ -123,7 +121,7 @@ namespace DataTypesTests
                 v1.Normalize();
                 v1.Invert();
                 v2 = rv.GetVector();
-                Assert.IsTrue(v1.IsSimilar(v2));
+                ClassicAssert.IsTrue(v1.IsSimilar(v2));
 
 
                 // Raw check
@@ -131,9 +129,10 @@ namespace DataTypesTests
                 len2 = Math.Sqrt(rv.X * rv.X + rv.Y * rv.Y + rv.Z * rv.Z);
                 Trace.WriteLine(len);
                 Trace.WriteLine(len2);
-                Assert.AreNotEqual(len, len2, 0.000001);
-                Assert.AreEqual(-angle, len2, 0.000001);
-                Assert.AreEqual(-angle, rv.GetAngle(), 0.000001);
+                Assert.That(len, Is.Not.EqualTo(len2).Within(0.000001));
+
+                ClassicAssert.AreEqual(-angle, len2, 0.000001);
+                ClassicAssert.AreEqual(-angle, rv.GetAngle(), 0.000001);
             }
 
             // Test all permutations of unitary components (including zero)
@@ -159,21 +158,22 @@ namespace DataTypesTests
 
                             if (angle == 0 || len == 0)
                             {
-                                Assert.IsTrue(rv.IsZero());
-                                Assert.AreEqual(0, rv.GetAngle(), 0.000001);
+                                ClassicAssert.IsTrue(rv.IsZero());
+                                ClassicAssert.AreEqual(0, rv.GetAngle(), 0.000001);
                             }
                             else
                             {
-                                Assert.AreNotEqual(len, len2, 0.000001);
-                                Assert.AreEqual(-angle, len2, 0.000001);
-                                Assert.AreEqual(-angle, rv.GetAngle(), 0.000001);
+                                Assert.That(len, Is.Not.EqualTo(len2).Within(0.000001));
+
+                                ClassicAssert.AreEqual(-angle, len2, 0.000001);
+                                ClassicAssert.AreEqual(-angle, rv.GetAngle(), 0.000001);
 
                                 v1 = new Vector(x, y, z);
                                 v1.Normalize();
                                 v2 = rv.GetVector();
                                 v2.Invert();
 
-                                Assert.IsTrue(v1.IsSimilar(v2));
+                                ClassicAssert.IsTrue(v1.IsSimilar(v2));
                             }
                         }
                     }
@@ -181,7 +181,7 @@ namespace DataTypesTests
             }
         }
 
-        [TestMethod]
+        [Test]
         public void RotationVector_ToAxisAngle_ToRotationVector()
         {
             RotationVector rv1, rv2;
@@ -208,8 +208,8 @@ namespace DataTypesTests
                 Trace.WriteLine(aa);
                 Trace.WriteLine(rv2);
 
-                Assert.IsTrue(rv1.IsSimilar(rv2));
-                Assert.AreEqual(angle > 0 ? angle : -angle, aa.Angle, 0.00001);
+                ClassicAssert.IsTrue(rv1.IsSimilar(rv2));
+                ClassicAssert.AreEqual(angle > 0 ? angle : -angle, aa.Angle, 0.00001);
             }
 
             // Test all permutations of unitary components (including zero)
@@ -236,13 +236,13 @@ namespace DataTypesTests
 
                             if (angle == 0 || len == 0)
                             {
-                                Assert.IsTrue(aa.IsZero());
-                                Assert.IsTrue(rv2.IsZero());
+                                ClassicAssert.IsTrue(aa.IsZero());
+                                ClassicAssert.IsTrue(rv2.IsZero());
                             }
                             else
                             {
-                                Assert.IsTrue(rv1.IsSimilar(rv2));
-                                Assert.AreEqual(angle > 0 ? angle : -angle, aa.Angle, 0.00001);
+                                ClassicAssert.IsTrue(rv1.IsSimilar(rv2));
+                                ClassicAssert.AreEqual(angle > 0 ? angle : -angle, aa.Angle, 0.00001);
                             }
 
                         }
@@ -251,7 +251,7 @@ namespace DataTypesTests
             }
         }
 
-        [TestMethod]
+        [Test]
         public void RotationVector_ToQuaternion_ToRotationVector()
         {
             RotationVector rv1, rv2;
@@ -293,7 +293,7 @@ namespace DataTypesTests
 
                 // This is not very clean, but I guess does the job...? 
                 //Assert.IsTrue(rv1.ToAxisAngle().IsEquivalent(rv2.ToAxisAngle()));
-                Assert.IsTrue(rv1.IsEquivalent(rv2));
+                ClassicAssert.IsTrue(rv1.IsEquivalent(rv2));
             }
 
             // Test all permutations of unitary components (including zero)
@@ -320,17 +320,17 @@ namespace DataTypesTests
 
                             if (angle == 0 || len == 0)
                             {
-                                Assert.IsTrue(q.IsIdentity());
-                                Assert.IsTrue(rv2.IsZero());
+                                ClassicAssert.IsTrue(q.IsIdentity());
+                                ClassicAssert.IsTrue(rv2.IsZero());
                             }
                             else
                             {
                                 //Assert.IsTrue(rv1.ToAxisAngle().IsEquivalent(rv2.ToAxisAngle()), "RV assert failed");
                                 if (x == -1 && y == -1 && z == -1 && angle == -360)
                                 {
-                                    Assert.IsTrue(rv1.IsEquivalent(rv2));
+                                    ClassicAssert.IsTrue(rv1.IsEquivalent(rv2));
                                 }
-                                Assert.IsTrue(rv1.IsEquivalent(rv2));
+                                ClassicAssert.IsTrue(rv1.IsEquivalent(rv2));
                             }
 
                         }

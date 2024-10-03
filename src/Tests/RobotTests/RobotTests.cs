@@ -1,16 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Diagnostics;
-
-using Machina;
 using Machina.Types.Geometry;
-using SysQuat = System.Numerics.Quaternion;
 using SysVec = System.Numerics.Vector3;
-using SysMatrix44 = System.Numerics.Matrix4x4;
 
 
 namespace RobotTests

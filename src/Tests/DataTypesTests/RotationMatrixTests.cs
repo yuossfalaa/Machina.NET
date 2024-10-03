@@ -1,13 +1,9 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Diagnostics;
-
-using Machina;
+﻿using System.Diagnostics;
 using Machina.Types.Geometry;
 using SysMatrix44 = System.Numerics.Matrix4x4;
 using SysQuat = System.Numerics.Quaternion;
-using SysVec = System.Numerics.Vector3;
-
+using NUnit.Framework;
+using NUnit.Framework.Legacy;
 namespace DataTypesTests
 {
 
@@ -18,13 +14,11 @@ namespace DataTypesTests
     //  ██║  ██║╚██████╔╝   ██║   ██║  ██║   ██║   ██║╚██████╔╝██║ ╚████║██║ ╚═╝ ██║██║  ██║   ██║   ██║  ██║██║██╔╝ ██╗
     //  ╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝  ╚═╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝
     //                                                                                                                  
-
-    [TestClass]
     public class RotationMatrixTests : DataTypesTests
     {
 
 
-        [TestMethod]
+        [Test]
         public void RotationMatrix_OrthogonalOnCreation_RandomValues()
         {
             RotationMatrix m;
@@ -47,7 +41,7 @@ namespace DataTypesTests
                 }
                 Trace.WriteLine("");
                 Trace.WriteLine(m);
-                Assert.IsTrue(m.IsOrthogonal(), "RotationMatrix isn't orthogonal");
+                ClassicAssert.IsTrue(m.IsOrthogonal(), "RotationMatrix isn't orthogonal");
             }
 
             for (var i = 0; i < 50; i++)
@@ -66,11 +60,11 @@ namespace DataTypesTests
                 }
                 Trace.WriteLine("");
                 Trace.WriteLine(m);
-                Assert.IsTrue(m.IsOrthogonal(), "RotationMatrix isn't orthogonal");
+                ClassicAssert.IsTrue(m.IsOrthogonal(), "RotationMatrix isn't orthogonal");
             }
         }
 
-        [TestMethod]
+        [Test]
         public void RotationMatrix_OrthogonalOnCreation_RandomVectors()
         {
             RotationMatrix m;
@@ -87,10 +81,10 @@ namespace DataTypesTests
                 Trace.WriteLine("");
                 Trace.WriteLine(vecX + " " + vecY);
                 Trace.WriteLine(m);
-                Assert.IsTrue(m.IsOrthogonal(), "RotationMatrix isn't orthogonal");
+                ClassicAssert.IsTrue(m.IsOrthogonal(), "RotationMatrix isn't orthogonal");
 
                 mVecX = new Vector(m.m00, m.m10, m.m20);
-                Assert.IsTrue(Vector.CompareDirections(vecX, mVecX) == 1, "Original VectorX and orthogonalized one are not parallel");
+                ClassicAssert.IsTrue(Vector.CompareDirections(vecX, mVecX) == 1, "Original VectorX and orthogonalized one are not parallel");
             }
 
             for (var i = 0; i < 100; i++)
@@ -107,37 +101,37 @@ namespace DataTypesTests
 
                 if (dir == 1 || dir == 3)
                 {
-                    Assert.IsTrue(m.IsIdentity(), "Parallel vectors should yield an identity matrix");
+                    ClassicAssert.IsTrue(m.IsIdentity(), "Parallel vectors should yield an identity matrix");
                 }
                 else
                 {
-                    Assert.IsTrue(m.IsOrthogonal(), "RotationMatrix isn't orthogonal");
+                    ClassicAssert.IsTrue(m.IsOrthogonal(), "RotationMatrix isn't orthogonal");
 
                     mVecX = new Vector(m.m00, m.m10, m.m20);
-                    Assert.IsTrue(Vector.CompareDirections(vecX, mVecX) == 1, "Original VectorX and orthogonalized X should be parallel");
+                    ClassicAssert.IsTrue(Vector.CompareDirections(vecX, mVecX) == 1, "Original VectorX and orthogonalized X should be parallel");
 
                     mVecY = new Vector(m.m01, m.m11, m.m21);
-                    Assert.IsTrue(Vector.CompareDirections(vecX, mVecY) == 2, "Original VectorX and orthogonalized Y should be perpendicular");
+                    ClassicAssert.IsTrue(Vector.CompareDirections(vecX, mVecY) == 2, "Original VectorX and orthogonalized Y should be perpendicular");
 
                     mVecZ = new Vector(m.m02, m.m12, m.m22);
-                    Assert.IsTrue(Vector.CompareDirections(vecX, mVecZ) == 2, "Original VectorX and orthogonalized Z should be perpendicular");
+                    ClassicAssert.IsTrue(Vector.CompareDirections(vecX, mVecZ) == 2, "Original VectorX and orthogonalized Z should be perpendicular");
 
-                    Assert.IsTrue(Vector.CompareDirections(mVecX, mVecY) == 2);
-                    Assert.IsTrue(Vector.CompareDirections(mVecX, mVecZ) == 2);
-                    Assert.IsTrue(Vector.CompareDirections(mVecY, mVecZ) == 2);
+                    ClassicAssert.IsTrue(Vector.CompareDirections(mVecX, mVecY) == 2);
+                    ClassicAssert.IsTrue(Vector.CompareDirections(mVecX, mVecZ) == 2);
+                    ClassicAssert.IsTrue(Vector.CompareDirections(mVecY, mVecZ) == 2);
                 }
             }
         }
 
-        [TestMethod]
+        [Test]
         public void RotationMatrix_OrthogonalOnCreation_ZeroVector()
         {
             RotationMatrix m = new RotationMatrix(0, 0, 0, 0, 0, 0, 0, 0, 0);
-            Assert.IsTrue(m.IsIdentity());
+            ClassicAssert.IsTrue(m.IsIdentity());
 
         }
 
-        [TestMethod]
+        [Test]
         public void RotationMatrix_ToQuaternion_VsSystemNumerics()
         {
             RotationMatrix m;
@@ -182,24 +176,24 @@ namespace DataTypesTests
                 Trace.WriteLine(sq);
                 Trace.WriteLine(m44bis);
 
-                Assert.IsTrue(q.IsEquivalent(new Quaternion(sq.W, sq.X, sq.Y, sq.Z)), "Quaternions are not equivalent!");
+                ClassicAssert.IsTrue(q.IsEquivalent(new Quaternion(sq.W, sq.X, sq.Y, sq.Z)), "Quaternions are not equivalent!");
             }
         }
 
 
         // @TODO: design a test with matrices with very low traces...
-        [TestMethod]
+        [Test]
         public void RotationMatrix_ToQuaternion_LowTrace()
         {
             RotationMatrix m = new RotationMatrix(new Vector(0, 1, 0), new Vector(-1, 0, 0));
             Quaternion q = m.ToQuaternion();
             RotationMatrix m1 = q.ToRotationMatrix();
 
-            Assert.IsTrue(m.IsSimilar(m1));
+            ClassicAssert.IsTrue(m.IsSimilar(m1));
         }
 
 
-        [TestMethod]
+        [Test]
         public void RotationMatrix_ToQuaternion_ToRotationMatrix()
         {
             RotationMatrix m1, m2;
@@ -225,11 +219,11 @@ namespace DataTypesTests
                 Trace.WriteLine(q);
                 Trace.WriteLine(m2);
 
-                Assert.IsTrue(m1.IsSimilar(m2));
+                ClassicAssert.IsTrue(m1.IsSimilar(m2));
             }
         }
 
-        [TestMethod]
+        [Test]
         public void RotationMatrix_ToAxisAngle_ToRotationMatrix()
         {
 
@@ -259,8 +253,8 @@ namespace DataTypesTests
                 Trace.WriteLine(aa2);
                 Trace.WriteLine(m2);
 
-                Assert.IsTrue(m1.IsSimilar(m2));
-                Assert.IsTrue(aa1.IsEquivalent(aa2));  // just for the sake of it, not the point of this test ;)
+                ClassicAssert.IsTrue(m1.IsSimilar(m2));
+                ClassicAssert.IsTrue(aa1.IsEquivalent(aa2));  // just for the sake of it, not the point of this test ;)
             }
 
 
@@ -282,12 +276,12 @@ namespace DataTypesTests
                 Trace.WriteLine(aa2);
                 Trace.WriteLine(m2);
 
-                Assert.IsTrue(m1.IsSimilar(m2));
-                Assert.IsTrue(aa1.IsEquivalent(aa2));  // just for the sake of it, not the point of this test ;)
+                ClassicAssert.IsTrue(m1.IsSimilar(m2));
+                ClassicAssert.IsTrue(aa1.IsEquivalent(aa2));  // just for the sake of it, not the point of this test ;)
             }
         }
 
-        [TestMethod]
+        [Test]
         public void RotationMatrix_ToYawPitchRoll_ToRotationMatrix()
         {
 
@@ -324,10 +318,10 @@ namespace DataTypesTests
                 Trace.WriteLine(m3);
                 Trace.WriteLine(eu3);
 
-                Assert.IsTrue(m1.IsSimilar(m2));
-                Assert.IsTrue(m2.IsSimilar(m3));
-                Assert.IsTrue(eu1.IsEquivalent(eu2));
-                Assert.IsTrue(eu2.IsSimilar(eu3));
+                ClassicAssert.IsTrue(m1.IsSimilar(m2));
+                ClassicAssert.IsTrue(m2.IsSimilar(m3));
+                ClassicAssert.IsTrue(eu1.IsEquivalent(eu2));
+                ClassicAssert.IsTrue(eu2.IsSimilar(eu3));
             }
 
 
@@ -355,14 +349,14 @@ namespace DataTypesTests
                 Trace.WriteLine(m3);
                 Trace.WriteLine(eu3);
 
-                Assert.IsTrue(m1.IsSimilar(m2));
-                Assert.IsTrue(m2.IsSimilar(m3));
-                Assert.IsTrue(eu1.IsEquivalent(eu2));
-                Assert.IsTrue(eu2.IsSimilar(eu3));
+                ClassicAssert.IsTrue(m1.IsSimilar(m2));
+                ClassicAssert.IsTrue(m2.IsSimilar(m3));
+                ClassicAssert.IsTrue(eu1.IsEquivalent(eu2));
+                ClassicAssert.IsTrue(eu2.IsSimilar(eu3));
             }
         }
 
-        [TestMethod]
+        [Test]
         public void RotationMatrix_FromOrientation_MaintainParallelism()
         {
             Orientation ori;
@@ -388,7 +382,7 @@ namespace DataTypesTests
                 Trace.WriteLine(x0 + " " + y0 + " " + z0 + " " + x1 + " " + y1 + " " + z1);
                 Trace.WriteLine(ori);
 
-                Assert.IsTrue(Vector.AreParallel(xAxis, ori.XAxis));
+                ClassicAssert.IsTrue(Vector.AreParallel(xAxis, ori.XAxis));
 
             }
 
@@ -407,11 +401,11 @@ namespace DataTypesTests
                 // If parallel or opposite, rotation matrix should be identity...
                 if (dir == 1 || dir == 3)
                 {
-                    Assert.IsTrue(ori.XAxis.IsSimilar(Vector.XAxis));
+                    ClassicAssert.IsTrue(ori.XAxis.IsSimilar(Vector.XAxis));
                 }
                 else
                 {
-                    Assert.IsTrue(Vector.AreParallel(xAxis, ori.XAxis));
+                    ClassicAssert.IsTrue(Vector.AreParallel(xAxis, ori.XAxis));
                 }
             }
         }
