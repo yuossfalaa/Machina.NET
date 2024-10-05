@@ -1,65 +1,67 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <OutputType>Library</OutputType>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <WarningLevel>1</WarningLevel>
-    <DocumentationFile>bin\Debug\Machina.xml</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DocumentationFile>bin\Release\Machina.xml</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
-	
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\DriverModules\UR\machina_ur_driver.script" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\DriverModules\UR\empty.script" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\DriverModules\ABB\machina_abb_driver.mod" />
-    <EmbeddedResource Include="Resources\DriverModules\ABB\machina_abb_monitor.mod" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\DriverModules\ABB\machina_abb_driver.pgf" />
-    <EmbeddedResource Include="Resources\DriverModules\ABB\machina_abb_monitor.pgf" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\DriverModules\ABB\machina_abb_empty.mod" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\DriverModules\ABB\machina_abb_empty.pgf" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\DriverModules\KUKA\machina_kuka_driver.src" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\DriverModules\KUKA\machina_kuka_server.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\DriverModules\KUKA\machina_kuka_driver.dat" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="Drivers\Communication\ISendMessage.cs" />
-    <Compile Remove="Properties\Resources.Designer.cs" />
-  </ItemGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<OutputType>Library</OutputType>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+		<WarningLevel>1</WarningLevel>
+		<DocumentationFile>bin\Debug\Machina.xml</DocumentationFile>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+		<DocumentationFile>bin\Release\Machina.xml</DocumentationFile>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+		<OutputPath>bin\x64\Debug\</OutputPath>
+		<CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+		<OutputPath>bin\x64\Release\</OutputPath>
+		<CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+	</PropertyGroup>
+	<PropertyGroup>
+		<StartupObject />
+	</PropertyGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="Resources\DriverModules\UR\machina_ur_driver.script" />
+	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Resources\DriverModules\UR\empty.script" />
+	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Resources\DriverModules\ABB\machina_abb_driver.mod" />
+		<EmbeddedResource Include="Resources\DriverModules\ABB\machina_abb_monitor.mod" />
+	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Resources\DriverModules\ABB\machina_abb_driver.pgf" />
+		<EmbeddedResource Include="Resources\DriverModules\ABB\machina_abb_monitor.pgf" />
+	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Resources\DriverModules\ABB\machina_abb_empty.mod" />
+	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Resources\DriverModules\ABB\machina_abb_empty.pgf" />
+	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Resources\DriverModules\KUKA\machina_kuka_driver.src" />
+	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Resources\DriverModules\KUKA\machina_kuka_server.xml" />
+	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Resources\DriverModules\KUKA\machina_kuka_driver.dat" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+		<PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+		<PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
+		<PackageReference Include="System.Diagnostics.PerformanceCounter" Version="8.0.0" />
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Remove="Drivers\Communication\ISendMessage.cs" />
+		<Compile Remove="Properties\Resources.Designer.cs" />
+	</ItemGroup>
 	<ItemGroup>
 		<Reference Include="ABB.Robotics.Controllers.PC">
 			<HintPath>assemblies\ABB.Robotics.Controllers.PC.dll</HintPath>
@@ -68,19 +70,21 @@
 			<HintPath>assemblies\RobotStudio.Services.RobApi.Desktop.dll</HintPath>
 		</Reference>
 	</ItemGroup>
-  <PropertyGroup>
-    <PostBuildEvent>REM JL: for the time being, only copy ddlls manually to avoid breaking the dependent projects
-REM IF ($(ConfigurationName)) == (Debug) GOTO END
-REM cd $(ProjectDir)
-REM copy /y bin\Release\Machina.dll "D:\Dropbox\Jose Luis\code\MachinaDynamo\package\Machina\bin"
-REM :END</PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyTitle>Machina</AssemblyTitle>
-    <Company>Microsoft</Company>
-    <Product>Machina</Product>
-    <Copyright>Copyright © Microsoft 2016</Copyright>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
-  </PropertyGroup>
+	<PropertyGroup>
+		<PostBuildEvent>
+			REM JL: for the time being, only copy ddlls manually to avoid breaking the dependent projects
+			REM IF ($(ConfigurationName)) == (Debug) GOTO END
+			REM cd $(ProjectDir)
+			REM copy /y bin\Release\Machina.dll "D:\Dropbox\Jose Luis\code\MachinaDynamo\package\Machina\bin"
+			REM :END
+		</PostBuildEvent>
+	</PropertyGroup>
+	<PropertyGroup>
+		<AssemblyTitle>Machina</AssemblyTitle>
+		<Company>Microsoft</Company>
+		<Product>Machina</Product>
+		<Copyright>Copyright © Microsoft 2016</Copyright>
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<FileVersion>1.0.0.0</FileVersion>
+	</PropertyGroup>
 </Project>

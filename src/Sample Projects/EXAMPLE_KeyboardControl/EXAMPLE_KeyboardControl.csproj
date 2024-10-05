@@ -1,20 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <OutputType>Exe</OutputType>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <AssemblyTitle>EXAMPLE_KeyboardControl</AssemblyTitle>
-    <Company>Microsoft</Company>
-    <Product>EXAMPLE_KeyboardControl</Product>
-    <Copyright>Copyright © Microsoft 2016</Copyright>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
-  </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Machina\Machina.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-  </ItemGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<OutputType>Exe</OutputType>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<AssemblyTitle>EXAMPLE_KeyboardControl</AssemblyTitle>
+		<Company>Microsoft</Company>
+		<Product>EXAMPLE_KeyboardControl</Product>
+		<Copyright>Copyright © Microsoft 2016</Copyright>
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<FileVersion>1.0.0.0</FileVersion>
+	</PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\Machina\Machina.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+		<PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+		<PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
+		<PackageReference Include="System.Diagnostics.PerformanceCounter" Version="8.0.0" />
+
+	</ItemGroup>
 </Project>
