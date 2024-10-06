@@ -1,41 +1,64 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Reflection;
-using System.Runtime.Serialization;
-using System.IO;
-using System.Runtime.Serialization.Json;
 using Machina.Attributes;
-using Machina.Types;
 using Machina.Types.Geometry;
 using Machina.Types.Data;
 
-//  ███╗   ███╗ █████╗  ██████╗██╗  ██╗██╗███╗   ██╗ █████╗ 
-//  ████╗ ████║██╔══██╗██╔════╝██║  ██║██║████╗  ██║██╔══██╗
-//  ██╔████╔██║███████║██║     ███████║██║██╔██╗ ██║███████║
-//  ██║╚██╔╝██║██╔══██║██║     ██╔══██║██║██║╚██╗██║██╔══██║
-//  ██║ ╚═╝ ██║██║  ██║╚██████╗██║  ██║██║██║ ╚████║██║  ██║
-//  ╚═╝     ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝
-//                                                          
+                                                    
 
 namespace Machina
 {
-    //  ██████╗  ██████╗ ██████╗  ██████╗ ████████╗
-    //  ██╔══██╗██╔═══██╗██╔══██╗██╔═══██╗╚══██╔══╝
-    //  ██████╔╝██║   ██║██████╔╝██║   ██║   ██║   
-    //  ██╔══██╗██║   ██║██╔══██╗██║   ██║   ██║   
-    //  ██║  ██║╚██████╔╝██████╔╝╚██████╔╝   ██║   
-    //  ╚═╝  ╚═╝ ╚═════╝ ╚═════╝  ╚═════╝    ╚═╝   
-    //                                             
+                                         
     /// <summary>
     /// The core Class in Machina. Represents a state and action-based virtual robot, 
     /// and exposes the public API for robot manipulation and control.
     /// </summary>
     public class Robot
     {
+        #region Private Vars
+        /// <summary>
+        /// The main Control object, acts as an interface to all classes that
+        /// manage robot control.
+        /// </summary>
+        private Control _control;
+
+        #endregion
+
+        #region Events
+        /// <summary>
+        /// Will be raised whenever an Action has been successfully issued and is scheduled for release to the device or compilation. 
+        /// </summary>
+        public event ActionIssuedHandler ActionIssued;
+        public delegate void ActionIssuedHandler(object sender, ActionIssuedArgs args);
+        internal virtual void OnActionIssued(ActionIssuedArgs args) => ActionIssued?.Invoke(this, args);
+
+        /// <summary>
+        /// Will be raised whenever an Action has been released to the device and is scheduled for execution.
+        /// </summary>
+        public event ActionReleasedHandler ActionReleased;
+        public delegate void ActionReleasedHandler(object sender, ActionReleasedArgs args);
+        internal virtual void OnActionReleased(ActionReleasedArgs args) => ActionReleased?.Invoke(this, args);
+
+        /// <summary>
+        /// Will be raised whenever an Action has completed execution on the device. 
+        /// </summary>
+        public event ActionExecutedHandler ActionExecuted;
+        public delegate void ActionExecutedHandler(object sender, ActionExecutedArgs args);
+        internal virtual void OnActionExecuted(ActionExecutedArgs args) => ActionExecuted?.Invoke(this, args);
+
+        /// <summary>
+        /// Will be raised whenever new information is available about the real-time information about the state of the device.
+        /// </summary>
+        public event MotionUpdateHandler MotionUpdate;
+        public delegate void MotionUpdateHandler(object sender, MotionUpdateArgs args);
+        internal virtual void OnMotionUpdate(MotionUpdateArgs args) => MotionUpdate?.Invoke(this, args);
+
+
+        #endregion
+
+        #region Public Vars
         /// <summary>
         /// Build number.
         /// </summary>
@@ -57,28 +80,66 @@ namespace Machina
         public RobotType Brand { get; internal set; }
 
         /// <summary>
-        /// The main Control object, acts as an interface to all classes that
-        /// manage robot control.
-        /// </summary>
-        private Control c;
-
-
-        /// <summary>
         /// An internal logging class to be used by children objects to log messages from this Robot.
         /// </summary>
         internal RobotLogger logger;
 
         public RobotLogger Logger => logger;
+        #endregion
+
+        #region Getters
+        /// <summary>
+        /// Returns the module files necessary to load on the device for a successful connection.
+        /// </summary>
+        /// <param name="parameters">Values necessary to be replaced on the modules, such as {"HOSTNAME","192.168.125.1"} or {"PORT","7000"}.</param>
+        /// <returns>A dict with filename-filecontent pairs.</returns>
+        public Dictionary<string, string> GetDeviceDriverModules(Dictionary<string, string> parameters) => _control.GetDeviceDriverModules(parameters);
+
+        /// <summary>
+        /// Returns a Point representation of the Robot's TCP position in mm and World coordinates.
+        /// </summary>
+        /// <returns></returns>
+        public Point GetCurrentPosition() => _control.GetCurrentPosition();
+
+        /// <summary>
+        /// Returns a Rotation representation of the Robot's TCP orientation in quaternions.
+        /// </summary>
+        /// <returns></returns>
+        public Rotation GetCurrentRotation() => _control.GetCurrentRotation();
+
+        /// <summary>
+        /// Returns a Joint object representing the rotations in the robot axes.
+        /// </summary>
+        /// <returns></returns>
+        public Joints GetCurrentAxes() => _control.GetCurrentAxes();
+
+        /// <summary>
+        /// Retuns an ExternalAxes object representing the values of the external axes. If a value is null, that axis is not valid.
+        /// </summary>
+        /// <returns></returns>
+        public ExternalAxes GetCurrentExternalAxes() => _control.GetCurrentExternalAxes();
+
+        public double GetCurrentSpeed() => _control.GetCurrentSpeedSetting();
+
+        public double GetCurrentAcceleration() => _control.GetCurrentAccelerationSetting();
+
+        public double GetCurrentPrecision() => _control.GetCurrentPrecisionSetting();
+
+        public MotionType GetCurrentMotionMode() => _control.GetCurrentMotionTypeSetting();
+
+        /// <summary>
+        /// Returns the Tool object currently attached to this Robot, null if none.
+        /// </summary>
+        /// <returns>The Tool object currently attached to this Robot, null if none.</returns>
+        public Tool GetCurrentTool() => _control.GetCurrentTool();
+
+        public override string ToString() => $"Robot[\"{this.Name}\", {this.Brand}]";
 
 
 
+        #endregion
 
-        //  ██████╗ ██╗   ██╗██████╗ ██╗     ██╗ ██████╗     █████╗ ██████╗ ██╗
-        //  ██╔══██╗██║   ██║██╔══██╗██║     ██║██╔════╝    ██╔══██╗██╔══██╗██║
-        //  ██████╔╝██║   ██║██████╔╝██║     ██║██║         ███████║██████╔╝██║
-        //  ██╔═══╝ ██║   ██║██╔══██╗██║     ██║██║         ██╔══██║██╔═══╝ ██║
-        //  ██║     ╚██████╔╝██████╔╝███████╗██║╚██████╗    ██║  ██║██║     ██║
-        //  ╚═╝      ╚═════╝ ╚═════╝ ╚══════╝╚═╝ ╚═════╝    ╚═╝  ╚═╝╚═╝     ╚═╝
+        #region Constructor Methods
         /// <summary>
         /// Internal constructor.
         /// </summary>
@@ -95,7 +156,7 @@ namespace Machina
                 LoadReflectedAPI();
             }
 
-            c = new Control(this);
+            _control = new Control(this);
         }
 
 
@@ -146,17 +207,9 @@ namespace Machina
             }
         }
 
+        #endregion
 
-
-
-        //   ██████╗ ██████╗ ███╗   ██╗███████╗██╗ ██████╗ 
-        //  ██╔════╝██╔═══██╗████╗  ██║██╔════╝██║██╔════╝ 
-        //  ██║     ██║   ██║██╔██╗ ██║█████╗  ██║██║  ███╗
-        //  ██║     ██║   ██║██║╚██╗██║██╔══╝  ██║██║   ██║
-        //  ╚██████╗╚██████╔╝██║ ╚████║██║     ██║╚██████╔╝
-        //   ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝     ╚═╝ ╚═════╝ 
-        //                                                 
-
+        #region Connection Configuration Methods
         /// What was this even for? Exports checks?
         public bool IsBrand(string brandName)
         {
@@ -176,7 +229,7 @@ namespace Machina
         /// <returns></returns>
         public bool StreamConfiguration(int minActionOnController, int maxActionsOnController)
         {
-            return c.ConfigureBuffer(minActionOnController, maxActionsOnController);
+            return _control.ConfigureBuffer(minActionOnController, maxActionsOnController);
         }
 
         /// <summary>
@@ -186,7 +239,7 @@ namespace Machina
         /// <returns></returns>
         public bool ControlMode(ControlType controlType)
         {
-            return c.SetControlMode(controlType);
+            return _control.SetControlMode(controlType);
         }
 
         /// <summary>
@@ -202,7 +255,7 @@ namespace Machina
                 ct = (ControlType)Enum.Parse(typeof(ControlType), controlType, true);
                 if (Enum.IsDefined(typeof(ControlType), ct))
                 {
-                    return c.SetControlMode(ct);
+                    return _control.SetControlMode(ct);
                 }
             }
             catch
@@ -230,7 +283,7 @@ namespace Machina
             {
                 cm = (ConnectionType)Enum.Parse(typeof(ConnectionType), connectionManager, true);
                 if (Enum.IsDefined(typeof(ConnectionType), cm))
-                    return c.SetConnectionMode(cm);
+                    return _control.SetConnectionMode(cm);
             }
             catch
             {
@@ -250,7 +303,7 @@ namespace Machina
         /// <returns></returns>
         public bool ConnectionManager(ConnectionType connectionManager)
         {
-            return c.SetConnectionMode(connectionManager);
+            return _control.SetConnectionMode(connectionManager);
         }
 
         /// <summary>
@@ -261,8 +314,12 @@ namespace Machina
         /// <returns></returns>
         public bool SetUser(string name, string password)
         {
-            return c.SetUserCredentials(name, password);
+            return _control.SetUserCredentials(name, password);
         }
+
+        #endregion
+
+        #region Connection INIT Method
 
         /// <summary>
         /// Scans the network for robotic devices, real or virtual, and performs all necessary 
@@ -272,7 +329,7 @@ namespace Machina
         /// <returns></returns>
         public bool Connect(int robotId = 0)
         {
-            return c.ConnectToDevice(robotId);
+            return _control.ConnectToDevice(robotId);
         }
 
         /// <summary>
@@ -283,7 +340,7 @@ namespace Machina
         /// <returns></returns>
         public bool Connect(string ip, int port)
         {
-            return c.ConnectToDevice(ip, port);
+            return _control.ConnectToDevice(ip, port);
         }
 
         /// <summary>
@@ -292,7 +349,7 @@ namespace Machina
         /// </summary>
         public bool Disconnect()
         {
-            return c.DisconnectFromDevice();
+            return _control.DisconnectFromDevice();
         }
 
         /// <summary>
@@ -301,9 +358,12 @@ namespace Machina
         /// <returns></returns>
         public string GetIP()
         {
-            return c.GetControllerIP();
+            return _control.GetControllerIP();
         }
+        #endregion
 
+        //Move To there own Class
+        #region Robot Program Methods
         /// <summary>
         /// Create a program in the device's native language with all the buffered Actions and return it as a RobotProgram,
         /// representing the different program files. Note all buffered Actions will be removed from the queue.
@@ -313,7 +373,7 @@ namespace Machina
         /// <returns></returns>
         public RobotProgram Compile(bool inlineTargets = true, bool humanComments = true)
         {
-            return c.Export(inlineTargets, humanComments);
+            return _control.Export(inlineTargets, humanComments);
         }
 
         /// <summary>
@@ -327,49 +387,17 @@ namespace Machina
             return program.SaveToFolder(folderPath, logger);
         }
 
+        #endregion
 
-        ///// <summary>
-        ///// Create a program in the device's native language with all the buffered Actions and save it to files. 
-        ///// Note all buffered Actions will be removed from the queue.
-        ///// </summary>
-        ///// <param name="folderPath">The folder where the program files will be written to.</param>
-        ///// <param name="inlineTargets">Write inline targets on action statements, or declare them as independent variables?</param>
-        ///// <param name="humanComments">If true, a human-readable description will be added to each line of code</param>
-        ///// <returns></returns>
-        //public bool CompileToFolder(string folderPath, bool inlineTargets = true, bool humanComments = true)
-        //{
-        //    return c.Export(folderPath, inlineTargets, humanComments);
-        //}
-
-
-
-
-        ///// <summary>
-        ///// In 'execute' mode, flushes all pending Actions, creates a program, 
-        ///// uploads it to the controller and runs it.
-        ///// </summary>
-        ///// <returns></returns>
-        //public void Execute()
-        //{
-        //    c.Execute();
-        //}
-
-
-
-        //  ███████╗███████╗████████╗████████╗██╗███╗   ██╗ ██████╗ ███████╗
-        //  ██╔════╝██╔════╝╚══██╔══╝╚══██╔══╝██║████╗  ██║██╔════╝ ██╔════╝
-        //  ███████╗█████╗     ██║      ██║   ██║██╔██╗ ██║██║  ███╗███████╗
-        //  ╚════██║██╔══╝     ██║      ██║   ██║██║╚██╗██║██║   ██║╚════██║
-        //  ███████║███████╗   ██║      ██║   ██║██║ ╚████║╚██████╔╝███████║
-        //  ╚══════╝╚══════╝   ╚═╝      ╚═╝   ╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚══════╝
-
+        //Maybe We Can Take Each Type of Methods To a partial Class
+        #region Motion Settings Methods
         /// <summary>
         /// Sets the motion type (linear, joint...) for future issued Actions.
         /// </summary>
         /// <param name="motionType"></param>
         public bool MotionMode(MotionType motionType)
         {
-            return c.IssueMotionRequest(motionType);
+            return _control.IssueMotionRequest(motionType);
         }
 
         /// <summary>
@@ -385,7 +413,7 @@ namespace Machina
                 mt = (MotionType)Enum.Parse(typeof(MotionType), motionType, true);
                 if (Enum.IsDefined(typeof(MotionType), mt))
                 {
-                    return c.IssueMotionRequest(mt);
+                    return _control.IssueMotionRequest(mt);
                 }
             }
             catch
@@ -406,7 +434,7 @@ namespace Machina
         [ParseableFromString]
         public bool Speed(double speedInc)
         {
-            return c.IssueSpeedRequest(speedInc, true);
+            return _control.IssueSpeedRequest(speedInc, true);
         }
 
         /// <summary>
@@ -416,7 +444,7 @@ namespace Machina
         [ParseableFromString]
         public bool SpeedTo(double speed)
         {
-            return c.IssueSpeedRequest(speed, false);
+            return _control.IssueSpeedRequest(speed, false);
         }
 
         /// <summary>
@@ -427,7 +455,7 @@ namespace Machina
         [ParseableFromString]
         public bool Acceleration(double accInc)
         {
-            return c.IssueAccelerationRequest(accInc, true);
+            return _control.IssueAccelerationRequest(accInc, true);
         }
 
         /// <summary>
@@ -438,7 +466,7 @@ namespace Machina
         [ParseableFromString]
         public bool AccelerationTo(double acceleration)
         {
-            return c.IssueAccelerationRequest(acceleration, false);
+            return _control.IssueAccelerationRequest(acceleration, false);
         }
 
         /// <summary>
@@ -451,7 +479,7 @@ namespace Machina
         [ParseableFromString]
         public bool Precision(double radiusInc)
         {
-            return c.IssuePrecisionRequest(radiusInc, true);
+            return _control.IssuePrecisionRequest(radiusInc, true);
         }
 
         /// <summary>
@@ -464,18 +492,8 @@ namespace Machina
         [ParseableFromString]
         public bool PrecisionTo(double radius)
         {
-            return c.IssuePrecisionRequest(radius, false);
+            return _control.IssuePrecisionRequest(radius, false);
         }
-
-        // This should be a GetStuff method
-        ///// <summary>
-        ///// Gets current ReferenceCS setting.
-        ///// </summary>
-        ///// <returns></returns>
-        //public ReferenceCS Coordinates()
-        //{
-        //    return c.GetCurrentReferenceCS();
-        //}
 
         /// <summary>
         /// Sets the reference system used for relative transformations.
@@ -483,7 +501,7 @@ namespace Machina
         /// <param name="refcs"></param>
         public bool Coordinates(ReferenceCS refcs)
         {
-            return c.IssueCoordinatesRequest(refcs);
+            return _control.IssueCoordinatesRequest(refcs);
         }
 
         /// <summary>
@@ -503,7 +521,7 @@ namespace Machina
             }
             catch
             {
-               logger.Error($"{type} is not a Coordinate System, please specify one of the following: ");
+                logger.Error($"{type} is not a Coordinate System, please specify one of the following: ");
                 foreach (string str in Enum.GetNames(typeof(ReferenceCS)))
                 {
                     logger.Error(str);
@@ -511,11 +529,10 @@ namespace Machina
             }
 
             return false;
-        }
+        } 
+        #endregion
 
-
-
-
+        #region 3D related Settings Methods
         /// <summary>
         /// Increments the working temperature of one of the device's parts. Useful for 3D printing operations. 
         /// </summary>
@@ -532,7 +549,7 @@ namespace Machina
                 tt = (RobotPartType)Enum.Parse(typeof(RobotPartType), devicePart, true);
                 if (Enum.IsDefined(typeof(RobotPartType), tt))
                 {
-                    return c.IssueTemperatureRequest(temp, tt, waitToReachTemp, true);
+                    return _control.IssueTemperatureRequest(temp, tt, waitToReachTemp, true);
                 }
             }
             catch
@@ -562,7 +579,7 @@ namespace Machina
                 tt = (RobotPartType)Enum.Parse(typeof(RobotPartType), devicePart, true);
                 if (Enum.IsDefined(typeof(RobotPartType), tt))
                 {
-                    return c.IssueTemperatureRequest(temp, tt, waitToReachTemp, false);
+                    return _control.IssueTemperatureRequest(temp, tt, waitToReachTemp, false);
                 }
             }
             catch
@@ -584,7 +601,7 @@ namespace Machina
         [ParseableFromString]
         public bool ExtrusionRate(double rateInc)
         {
-            return c.IssueExtrusionRateRequest(rateInc, true);
+            return _control.IssueExtrusionRateRequest(rateInc, true);
         }
 
         /// <summary>
@@ -595,9 +612,11 @@ namespace Machina
         [ParseableFromString]
         public bool ExtrusionRateTo(double rate)
         {
-            return c.IssueExtrusionRateRequest(rate, false);
+            return _control.IssueExtrusionRateRequest(rate, false);
         }
+        #endregion
 
+        #region Setting Methods
         /// <summary>
         /// Buffers current state settings (speed, precision, motion type...), and opens up for 
         /// temporary settings changes to be reverted by PopSettings().
@@ -605,7 +624,7 @@ namespace Machina
         [ParseableFromString]
         public bool PushSettings()
         {
-            return c.IssuePushPopRequest(true);
+            return _control.IssuePushPopRequest(true);
         }
 
         /// <summary>
@@ -615,20 +634,83 @@ namespace Machina
         [ParseableFromString]
         public bool PopSettings()
         {
-            return c.IssuePushPopRequest(false);
+            return _control.IssuePushPopRequest(false);
+        }
+
+        #endregion
+
+        #region Control Methods
+        /// <summary>
+        /// Turns extrusion in 3D printers on/off.
+        /// </summary>
+        /// <param name="extrude">True/false for on/off.</param>
+        /// <returns></returns>
+        [ParseableFromString]
+        public bool Extrude(bool extrude = true)
+        {
+            return _control.IssueExtrudeRequest(extrude);
+        }
+
+        /// <summary>
+        /// Initialize this device for action. Initialization uses device-specific
+        /// common initialization routines, like homing and calibration, to set the 
+        /// device ready for typical procedures like 3D printing. 
+        /// </summary>
+        /// <returns></returns>
+        [ParseableFromString]
+        public bool Initialize()
+        {
+            return _control.IssueInitializationRequest(true);
+        }
+
+        /// <summary>
+        /// Terminate this device. Termination uses device-specific
+        /// common termination routines, like cooling or turning fans off, to prepare
+        /// the device for idleness.
+        /// </summary>
+        /// <returns></returns>
+        [ParseableFromString]
+        public bool Terminate()
+        {
+            return _control.IssueInitializationRequest(false);
+        }
+
+        /// <summary>
+        /// Issue an Action represented by a string in the Machina Common Language, such as `Do("Move(100,0,0);")`.
+        /// The Action will parse the string and use reflection to figure out the most suitable Action
+        /// to associate to this. 
+        /// </summary>
+        /// <param name="actionStatement"></param>
+        /// <returns></returns>
+        public bool Do(string actionStatement)
+        {
+            // Should `Do` just generate the corresponding Action, or should it be an Action in itself...?
+            // If it was, it would be hard to by-pass creating another Action when the reflected method is called...
+            // So keep it as a "Setting" method for the time being...? Although it should prob be it's own Action,
+            // just by design...
+
+            // Also, should this method also be `[ParseableFromString]`?? So meta...! lol
+
+            return _control.IssueApplyActionRequestFromStringStatement(actionStatement);
+        }
+
+
+        /// <summary>
+        /// Issues an Action object to this robot. This is useful when a list of Actions
+        /// is already available, and needs to be applied to this Robot.
+        /// </summary>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        public bool Issue(Action action)
+        {
+            return _control.IssueApplyActionRequest(action);
         }
 
 
 
+        #endregion
 
-        //   █████╗  ██████╗████████╗██╗ ██████╗ ███╗   ██╗███████╗
-        //  ██╔══██╗██╔════╝╚══██╔══╝██║██╔═══██╗████╗  ██║██╔════╝
-        //  ███████║██║        ██║   ██║██║   ██║██╔██╗ ██║███████╗
-        //  ██╔══██║██║        ██║   ██║██║   ██║██║╚██╗██║╚════██║
-        //  ██║  ██║╚██████╗   ██║   ██║╚██████╔╝██║ ╚████║███████║
-        //  ╚═╝  ╚═╝ ╚═════╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝
-        //                                                         
-
+        #region Movement Control Methods
         /// <summary>
         /// Issue a relative movement action request on current coordinate system.
         /// </summary>
@@ -636,7 +718,7 @@ namespace Machina
         /// <returns></returns>
         public bool Move(Vector direction)
         {
-            return c.IssueTranslationRequest(direction, true);
+            return _control.IssueTranslationRequest(direction, true);
         }
 
         /// <summary>
@@ -659,7 +741,7 @@ namespace Machina
         /// <returns></returns>
         public bool MoveTo(Point position)
         {
-            return c.IssueTranslationRequest(position, false);
+            return _control.IssueTranslationRequest(position, false);
         }
 
         /// <summary>
@@ -682,7 +764,7 @@ namespace Machina
         /// <returns></returns>
         public bool Rotate(Rotation rotation)
         {
-            return c.IssueRotationRequest(rotation, true);
+            return _control.IssueRotationRequest(rotation, true);
         }
 
         /// <summary>
@@ -717,7 +799,7 @@ namespace Machina
         /// <returns></returns>
         public bool RotateTo(Rotation rotation)
         {
-            return c.IssueRotationRequest(rotation, false);
+            return _control.IssueRotationRequest(rotation, false);
         }
 
         /// <summary>
@@ -770,10 +852,8 @@ namespace Machina
         /// <returns></returns>
         public bool Transform(Vector direction, Rotation rotation)
         {
-            // Note the T+R action order
-            //return c.IssueTranslationAndRotationRequest(position, true, rotation, true);
-
-            return c.IssueTransformationRequest(direction, rotation, true, true);
+    
+            return _control.IssueTransformationRequest(direction, rotation, true, true);
         }
 
         /// <summary>
@@ -789,10 +869,8 @@ namespace Machina
         /// <returns></returns>
         public bool Transform(Rotation rotation, Vector direction)
         {
-            // Note the R+T action order
-            //return c.IssueRotationAndTranslationRequest(rotation, true, position, true);
-
-            return c.IssueTransformationRequest(direction, rotation, true, false);
+           
+            return _control.IssueTransformationRequest(direction, rotation, true, false);
         }
 
         /// <summary>
@@ -804,10 +882,7 @@ namespace Machina
         /// <returns></returns>
         public bool TransformTo(Point position, Orientation orientation)
         {
-            // Action order is irrelevant in absolute mode (since translations are applied based on immutable world XYZ)
-            //return c.IssueTranslationAndRotationRequest(true, position, false, true, rotation, false);
-
-            return c.IssueTransformationRequest(position, orientation, false, true);
+            return _control.IssueTransformationRequest(position, orientation, false, true);
         }
 
         /// <summary>
@@ -819,10 +894,8 @@ namespace Machina
         /// <returns></returns>
         public bool TransformTo(Orientation orientation, Point position)
         {
-            // Action order is irrelevant in absolute mode (since translations are applied based on immutable world XYZ)
-            //return c.IssueTranslationAndRotationRequest(true, position, false, true, rotation, false);
 
-            return c.IssueTransformationRequest(position, orientation, false, false);
+            return _control.IssueTransformationRequest(position, orientation, false, false);
         }
 
         /// <summary>
@@ -842,7 +915,7 @@ namespace Machina
         [ParseableFromString]
         public bool TransformTo(double x, double y, double z, double vX0, double vX1, double vX2, double vY0, double vY1, double vY2) 
         {
-            return c.IssueTransformationRequest(new Vector(x, y, z), new Orientation(vX0, vX1, vX2, vY0, vY1, vY2), false, true);
+            return _control.IssueTransformationRequest(new Vector(x, y, z), new Orientation(vX0, vX1, vX2, vY0, vY1, vY2), false, true);
         }
 
         /// <summary>
@@ -864,7 +937,7 @@ namespace Machina
                 1, 0, 0,
                 0, 1, 0);  // world XY, won't be used anyway
 
-            return c.IssueArcMotionRequest(throughP, endP, true, true);
+            return _control.IssueArcMotionRequest(throughP, endP, true, true);
         }
 
         /// <summary>
@@ -893,7 +966,7 @@ namespace Machina
                 1, 0, 0,
                 0, 1, 0);  // world XY, won't be used anyway
 
-            return c.IssueArcMotionRequest(through, end, true, true);
+            return _control.IssueArcMotionRequest(through, end, true, true);
         }
 
         /// <summary>
@@ -915,7 +988,7 @@ namespace Machina
                 1, 0, 0,
                 0, 1, 0);  // world XY, won't be used anyway
 
-            return c.IssueArcMotionRequest(throughP, endP, false, true);
+            return _control.IssueArcMotionRequest(throughP, endP, false, true);
         }
 
         /// <summary>
@@ -944,7 +1017,7 @@ namespace Machina
                 1, 0, 0,
                 0, 1, 0);  // world XY, won't be used anyway
 
-            return c.IssueArcMotionRequest(through, end, false, true);
+            return _control.IssueArcMotionRequest(through, end, false, true);
         }
 
         /// <summary>
@@ -958,7 +1031,7 @@ namespace Machina
         {
             // Use deep copies to avoid reference conflicts 
             // @TODO: really need to convert geo types to structs soon!
-            return c.IssueArcMotionRequest(through.Clone(), end.Clone(), false, false);
+            return _control.IssueArcMotionRequest(through.Clone(), end.Clone(), false, false);
         }
 
         /// <summary>
@@ -1003,7 +1076,7 @@ namespace Machina
                 endVX0, endVX1, endVX2,
                 endVY0, endVY1, endVY2);
 
-            return c.IssueArcMotionRequest(through, end, false, false);
+            return _control.IssueArcMotionRequest(through, end, false, false);
         }
 
 
@@ -1015,7 +1088,7 @@ namespace Machina
         /// <returns></returns>
         public bool Axes(Joints incJoints)
         {
-            return c.IssueJointsRequest(incJoints, true);
+            return _control.IssueJointsRequest(incJoints, true);
         }
 
         /// <summary>
@@ -1032,7 +1105,7 @@ namespace Machina
         [ParseableFromString]
         public bool Axes(double incJ1, double incJ2, double incJ3, double incJ4, double incJ5, double incJ6)
         {
-            return c.IssueJointsRequest(new Joints(incJ1, incJ2, incJ3, incJ4, incJ5, incJ6), true);
+            return _control.IssueJointsRequest(new Joints(incJ1, incJ2, incJ3, incJ4, incJ5, incJ6), true);
         }
 
         /// <summary>
@@ -1044,7 +1117,7 @@ namespace Machina
         /// 
         public bool AxesTo(Joints joints)
         {
-            return c.IssueJointsRequest(joints, false);
+            return _control.IssueJointsRequest(joints, false);
         }
 
         /// <summary>
@@ -1061,7 +1134,7 @@ namespace Machina
         [ParseableFromString]
         public bool AxesTo(double j1, double j2, double j3, double j4, double j5, double j6)
         {
-            return c.IssueJointsRequest(new Joints(j1, j2, j3, j4, j5, j6), false);
+            return _control.IssueJointsRequest(new Joints(j1, j2, j3, j4, j5, j6), false);
         }
 
         /// <summary>
@@ -1079,7 +1152,7 @@ namespace Machina
                 logger.Error("Please enter an axis number between 1-6");
                 return false;
             }
-            return c.IssueExternalAxisRequest(axisNumber, increment, ExternalAxesTarget.All, true);
+            return _control.IssueExternalAxisRequest(axisNumber, increment, ExternalAxesTarget.All, true);
         }
 
         /// <summary>
@@ -1128,7 +1201,7 @@ namespace Machina
                 logger.Error("Please enter an axis number between 1-6");
                 return false;
             }
-            return c.IssueExternalAxisRequest(axisNumber, increment, externalAxesTarget, true);
+            return _control.IssueExternalAxisRequest(axisNumber, increment, externalAxesTarget, true);
         }
 
         /// <summary>
@@ -1146,7 +1219,7 @@ namespace Machina
                 logger.Error("Please enter an axis number between 1-6");
                 return false;
             }
-            return c.IssueExternalAxisRequest(axisNumber, value, ExternalAxesTarget.All, false);
+            return _control.IssueExternalAxisRequest(axisNumber, value, ExternalAxesTarget.All, false);
         }
 
         /// <summary>
@@ -1195,7 +1268,7 @@ namespace Machina
                 logger.Error("Please enter an axis number between 1-6");
                 return false;
             }
-            return c.IssueExternalAxisRequest(axisNumber, value, externalAxesTarget, false);
+            return _control.IssueExternalAxisRequest(axisNumber, value, externalAxesTarget, false);
         }
 
         // At the moment, allow only absolute setting, since the controller may change his value to find an IK solution to the target.
@@ -1213,7 +1286,7 @@ namespace Machina
         /// <returns></returns>
         public bool ArmAngleTo(double value)
         {
-            return c.IssueArmAngleRequest(value, false);
+            return _control.IssueArmAngleRequest(value, false);
         }
 
 
@@ -1225,44 +1298,13 @@ namespace Machina
         [ParseableFromString]
         public bool Wait(long timeMillis)
         {
-            return c.IssueWaitRequest(timeMillis);
+            return _control.IssueWaitRequest(timeMillis);
         }
 
-        /// <summary>
-        /// Send a string message to the device, to be displayed based on device's capacities.
-        /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        [ParseableFromString]
-        public bool Message(string message)
-        {
-            return c.IssueMessageRequest(message);
-        }
 
-        /// <summary>
-        /// Display an internal comment in the compilation code. 
-        /// Useful for internal annotations, reminders, etc. 
-        /// </summary>
-        /// <param name="comment"></param>
-        /// <returns></returns>
-        [ParseableFromString]
-        public bool Comment(string comment)
-        {
-            return c.IssueCommentRequest(comment);
-        }
+        #endregion
 
-        /// <summary>
-        /// Insert a line of custom code directly into a compiled program. 
-        /// This is useful for obscure instructions that are not covered by Machina's API. 
-        /// Note that this Action cannot be checked for validity by Machina, and you are responsible for correct syntax.
-        /// This Action is non-streamable. 
-        /// </summary>
-        /// <param name="statement">Code in the machine's native language.</param>
-        /// <param name="isDeclaration">Is this a declaration, like a variable or a workobject? If so, this statement will be placed at the beginning of the program.</param>
-        /// <returns></returns>
-        public bool CustomCode(string statement, bool isDeclaration = false) =>
-                c.IssueCustomCodeRequest(statement, isDeclaration);
-
+        #region Tools Control Methods
         /// <summary>
         /// Define a Tool object on the Robot's internal library to make it avaliable for future Attach/Detach actions.
         /// </summary>
@@ -1277,7 +1319,7 @@ namespace Machina
             }
 
             Tool copy = Tool.Create(tool);
-            return c.IssueDefineToolRequest(copy);
+            return _control.IssueDefineToolRequest(copy);
         }
 
         /// <summary>
@@ -1296,7 +1338,7 @@ namespace Machina
             }
 
             Tool tool = Tool.Create(name, TCPPosition, TCPOrientation);
-            return c.IssueDefineToolRequest(tool);
+            return _control.IssueDefineToolRequest(tool);
         }
 
         /// <summary>
@@ -1317,7 +1359,7 @@ namespace Machina
             }
 
             Tool tool = Tool.Create(name, TCPPosition, TCPOrientation, weightKg, centerOfGravity);
-            return c.IssueDefineToolRequest(tool);
+            return _control.IssueDefineToolRequest(tool);
         }
 
         /// <summary>
@@ -1355,7 +1397,7 @@ namespace Machina
                 tcp_vY0, tcp_vY1, tcp_vY2,
                 weight,
                 cogX, cogY, cogZ);
-            return c.IssueDefineToolRequest(tool);
+            return _control.IssueDefineToolRequest(tool);
         }
 
         /// <summary>
@@ -1374,7 +1416,7 @@ namespace Machina
                 return false;
             }
 
-            return c.IssueAttachRequest(toolName);
+            return _control.IssueAttachRequest(toolName);
         }
 
         /// <summary>
@@ -1385,7 +1427,7 @@ namespace Machina
         [ParseableFromString]
         public bool DetachTool()
         {
-            return c.IssueDetachRequest();
+            return _control.IssueDetachRequest();
         }
 
 
@@ -1401,8 +1443,8 @@ namespace Machina
         {
             logger.Warning("Attach is deprecated, Use AttachTool() instead.");
 
-            bool success = c.IssueDefineToolRequest(tool);
-            success &= c.IssueAttachRequest(tool.name);
+            bool success = _control.IssueDefineToolRequest(tool);
+            success &= _control.IssueAttachRequest(tool.name);
             return success;
 
             //return c.IssueAttachRequest(tool);
@@ -1418,7 +1460,7 @@ namespace Machina
         public bool Detach()
         {
             logger.Warning("Detach is deprecated, Use DetachTool() instead.");
-            return c.IssueDetachRequest();
+            return _control.IssueDetachRequest();
         }
 
 
@@ -1430,7 +1472,7 @@ namespace Machina
         /// <param name="toolPin">Is this pin on the tool?</param>
         public bool WriteDigital(int pinNumber, bool isOn, bool toolPin = false)
         {
-            return c.IssueWriteToDigitalIORequest(pinNumber.ToString(), isOn, toolPin);
+            return _control.IssueWriteToDigitalIORequest(pinNumber.ToString(), isOn, toolPin);
         }
 
         /// <summary>
@@ -1442,7 +1484,7 @@ namespace Machina
         [ParseableFromString]
         public bool WriteDigital(string pinId, bool isOn, bool toolPin = false)
         {
-            return c.IssueWriteToDigitalIORequest(pinId, isOn, toolPin);
+            return _control.IssueWriteToDigitalIORequest(pinId, isOn, toolPin);
         }
 
         /// <summary>
@@ -1453,7 +1495,7 @@ namespace Machina
         /// <param name="toolPin">Is this pin on the tool?</param>
         public bool WriteAnalog(int pinNumber, double value, bool toolPin = false)
         {
-            return c.IssueWriteToAnalogIORequest(pinNumber.ToString(), value, toolPin);
+            return _control.IssueWriteToAnalogIORequest(pinNumber.ToString(), value, toolPin);
         }
 
         /// <summary>
@@ -1465,180 +1507,54 @@ namespace Machina
         [ParseableFromString]
         public bool WriteAnalog(string pinId, double value, bool toolPin = false)
         {
-            return c.IssueWriteToAnalogIORequest(pinId, value, toolPin);
+            return _control.IssueWriteToAnalogIORequest(pinId, value, toolPin);
         }
+        #endregion
 
+        #region Custom Messages Method
         /// <summary>
-        /// Turns extrusion in 3D printers on/off.
+        /// Send a string message to the device, to be displayed based on device's capacities.
         /// </summary>
-        /// <param name="extrude">True/false for on/off.</param>
+        /// <param name="message"></param>
         /// <returns></returns>
         [ParseableFromString]
-        public bool Extrude(bool extrude = true)
+        public bool Message(string message)
         {
-            return c.IssueExtrudeRequest(extrude);
+            return _control.IssueMessageRequest(message);
         }
 
         /// <summary>
-        /// Initialize this device for action. Initialization uses device-specific
-        /// common initialization routines, like homing and calibration, to set the 
-        /// device ready for typical procedures like 3D printing. 
+        /// Display an internal comment in the compilation code. 
+        /// Useful for internal annotations, reminders, etc. 
         /// </summary>
+        /// <param name="comment"></param>
         /// <returns></returns>
         [ParseableFromString]
-        public bool Initialize()
+        public bool Comment(string comment)
         {
-            return c.IssueInitializationRequest(true);
+            return _control.IssueCommentRequest(comment);
         }
 
         /// <summary>
-        /// Terminate this device. Termination uses device-specific
-        /// common termination routines, like cooling or turning fans off, to prepare
-        /// the device for idleness.
+        /// Insert a line of custom code directly into a compiled program. 
+        /// This is useful for obscure instructions that are not covered by Machina's API. 
+        /// Note that this Action cannot be checked for validity by Machina, and you are responsible for correct syntax.
+        /// This Action is non-streamable. 
         /// </summary>
+        /// <param name="statement">Code in the machine's native language.</param>
+        /// <param name="isDeclaration">Is this a declaration, like a variable or a workobject? If so, this statement will be placed at the beginning of the program.</param>
         /// <returns></returns>
-        [ParseableFromString]
-        public bool Terminate()
-        {
-            return c.IssueInitializationRequest(false);
-        }
+        public bool CustomCode(string statement, bool isDeclaration = false) =>
+                _control.IssueCustomCodeRequest(statement, isDeclaration);
+        #endregion
 
-        /// <summary>
-        /// Issue an Action represented by a string in the Machina Common Language, such as `Do("Move(100,0,0);")`.
-        /// The Action will parse the string and use reflection to figure out the most suitable Action
-        /// to associate to this. 
-        /// </summary>
-        /// <param name="actionStatement"></param>
-        /// <returns></returns>
-        public bool Do(string actionStatement)
-        {
-            // Should `Do` just generate the corresponding Action, or should it be an Action in itself...?
-            // If it was, it would be hard to by-pass creating another Action when the reflected method is called...
-            // So keep it as a "Setting" method for the time being...? Although it should prob be it's own Action,
-            // just by design...
-
-            // Also, should this method also be `[ParseableFromString]`?? So meta...! lol
-
-            return c.IssueApplyActionRequestFromStringStatement(actionStatement);
-        }
-
-
-        /// <summary>
-        /// Issues an Action object to this robot. This is useful when a list of Actions
-        /// is already available, and needs to be applied to this Robot.
-        /// </summary>
-        /// <param name="action"></param>
-        /// <returns></returns>
-        public bool Issue(Action action)
-        {
-            return c.IssueApplyActionRequest(action);
-        }
-
-
-
-
-
-
-
-        //   ██████╗ ███████╗████████╗████████╗███████╗██████╗ ███████╗
-        //  ██╔════╝ ██╔════╝╚══██╔══╝╚══██╔══╝██╔════╝██╔══██╗██╔════╝
-        //  ██║  ███╗█████╗     ██║      ██║   █████╗  ██████╔╝███████╗
-        //  ██║   ██║██╔══╝     ██║      ██║   ██╔══╝  ██╔══██╗╚════██║
-        //  ╚██████╔╝███████╗   ██║      ██║   ███████╗██║  ██║███████║
-        //   ╚═════╝ ╚══════╝   ╚═╝      ╚═╝   ╚══════╝╚═╝  ╚═╝╚══════╝
-        //               
-
-        /// <summary>
-        /// Returns the module files necessary to load on the device for a successful connection.
-        /// </summary>
-        /// <param name="parameters">Values necessary to be replaced on the modules, such as {"HOSTNAME","192.168.125.1"} or {"PORT","7000"}.</param>
-        /// <returns>A dict with filename-filecontent pairs.</returns>
-        public Dictionary<string, string> GetDeviceDriverModules(Dictionary<string, string> parameters) => c.GetDeviceDriverModules(parameters);
-
-        /// <summary>
-        /// Returns a Point representation of the Robot's TCP position in mm and World coordinates.
-        /// </summary>
-        /// <returns></returns>
-        public Point GetCurrentPosition() => c.GetCurrentPosition();
-
-        /// <summary>
-        /// Returns a Rotation representation of the Robot's TCP orientation in quaternions.
-        /// </summary>
-        /// <returns></returns>
-        public Rotation GetCurrentRotation() => c.GetCurrentRotation();
-
-        /// <summary>
-        /// Returns a Joint object representing the rotations in the robot axes.
-        /// </summary>
-        /// <returns></returns>
-        public Joints GetCurrentAxes() => c.GetCurrentAxes();
-
-        /// <summary>
-        /// Retuns an ExternalAxes object representing the values of the external axes. If a value is null, that axis is not valid.
-        /// </summary>
-        /// <returns></returns>
-        public ExternalAxes GetCurrentExternalAxes() => c.GetCurrentExternalAxes();
-
-        public double GetCurrentSpeed() => c.GetCurrentSpeedSetting();
-
-        public double GetCurrentAcceleration() => c.GetCurrentAccelerationSetting();
-
-        public double GetCurrentPrecision() => c.GetCurrentPrecisionSetting();
-
-        public MotionType GetCurrentMotionMode() => c.GetCurrentMotionTypeSetting();
-        
-        /// <summary>
-        /// Returns the Tool object currently attached to this Robot, null if none.
-        /// </summary>
-        /// <returns>The Tool object currently attached to this Robot, null if none.</returns>
-        public Tool GetCurrentTool() => c.GetCurrentTool();
-
-        ///// <summary>
-        ///// Returns a Point represnting the current location of the Tool Center Point
-        ///// (if there is a Tool attached) or the Flange Center Point (if there isn't).
-        ///// </summary>
-        ///// <returns></returns>
-        //public Point GetVirtualPosition() => c.GetVirtualPosition();
-
-        ///// <summary>
-        ///// Return a Orientation object representing the current orientation of the Tool Center Point
-        ///// (if there is a Tool attached) or the Flange Center Point (if there isn't).
-        ///// </summary>
-        ///// <returns></returns>
-        //public Orientation GetVirtualRotation() => c.GetVirtualRotation();
-
-        ///// <summary>
-        ///// Returns a Joint object representing the rotations in the robot axes.
-        ///// </summary>
-        ///// <returns></returns>
-        //public Joints GetVirtualAxes() => c.GetVirtualAxes();
-
-        ///// <summary>
-        ///// Returns the Tool object currently attached to this Robot, null if none.
-        ///// </summary>
-        ///// <returns>The Tool object currently attached to this Robot, null if none.</returns>
-        //public Tool GetVirtualTool() => c.GetVirtualTool();
-
-
-        public override string ToString() => $"Robot[\"{this.Name}\", {this.Brand}]";
-
-
-
-
-
-        //  ██████╗ ███████╗██████╗ ██╗   ██╗ ██████╗ 
-        //  ██╔══██╗██╔════╝██╔══██╗██║   ██║██╔════╝ 
-        //  ██║  ██║█████╗  ██████╔╝██║   ██║██║  ███╗
-        //  ██║  ██║██╔══╝  ██╔══██╗██║   ██║██║   ██║
-        //  ██████╔╝███████╗██████╔╝╚██████╔╝╚██████╔╝
-        //  ╚═════╝ ╚══════╝╚═════╝  ╚═════╝  ╚═════╝ 
-        //                                            
+        #region Debug Methods                        
         /// <summary>
         /// Dumps a bunch of information to the console about the controller, the main task, etc.
         /// </summary>
         public void DebugDump()
         {
-            c.DebugDump();
+            _control.DebugDump();
         }
 
         /// <summary>
@@ -1646,7 +1562,7 @@ namespace Machina
         /// </summary>
         public void DebugBuffers()
         {
-            c.DebugBuffers();
+            _control.DebugBuffers();
         }
 
         /// <summary>
@@ -1654,7 +1570,7 @@ namespace Machina
         /// </summary>
         public void DebugRobotCursors()
         {
-            c.DebugRobotCursors();
+            _control.DebugRobotCursors();
         }
 
         /// <summary>
@@ -1681,61 +1597,10 @@ namespace Machina
                 Machina.Logger.SetLogLevel(LogLevel.INFO);
             }
         }
+        #endregion
 
+        #region Internal Methods
 
-
-
-
-
-
-
-
-        //  ███████╗██╗   ██╗███████╗███╗   ██╗████████╗███████╗
-        //  ██╔════╝██║   ██║██╔════╝████╗  ██║╚══██╔══╝██╔════╝
-        //  █████╗  ██║   ██║█████╗  ██╔██╗ ██║   ██║   ███████╗
-        //  ██╔══╝  ╚██╗ ██╔╝██╔══╝  ██║╚██╗██║   ██║   ╚════██║
-        //  ███████╗ ╚████╔╝ ███████╗██║ ╚████║   ██║   ███████║
-        //  ╚══════╝  ╚═══╝  ╚══════╝╚═╝  ╚═══╝   ╚═╝   ╚══════╝
-        //                                                      
-        /// <summary>
-        /// Will be raised whenever an Action has been successfully issued and is scheduled for release to the device or compilation. 
-        /// </summary>
-        public event ActionIssuedHandler ActionIssued;
-        public delegate void ActionIssuedHandler(object sender, ActionIssuedArgs args);
-        internal virtual void OnActionIssued(ActionIssuedArgs args) => ActionIssued?.Invoke(this, args);
-
-        /// <summary>
-        /// Will be raised whenever an Action has been released to the device and is scheduled for execution.
-        /// </summary>
-        public event ActionReleasedHandler ActionReleased;
-        public delegate void ActionReleasedHandler(object sender, ActionReleasedArgs args);
-        internal virtual void OnActionReleased(ActionReleasedArgs args) => ActionReleased?.Invoke(this, args);
-
-        /// <summary>
-        /// Will be raised whenever an Action has completed execution on the device. 
-        /// </summary>
-        public event ActionExecutedHandler ActionExecuted;
-        public delegate void ActionExecutedHandler(object sender, ActionExecutedArgs args);
-        internal virtual void OnActionExecuted(ActionExecutedArgs args) => ActionExecuted?.Invoke(this, args);
-
-        /// <summary>
-        /// Will be raised whenever new information is available about the real-time information about the state of the device.
-        /// </summary>
-        public event MotionUpdateHandler MotionUpdate;
-        public delegate void MotionUpdateHandler(object sender, MotionUpdateArgs args);
-        internal virtual void OnMotionUpdate(MotionUpdateArgs args) => MotionUpdate?.Invoke(this, args);
-
-
-
-
-
-        //  ██╗███╗   ██╗████████╗███████╗██████╗ ███╗   ██╗ █████╗ ██╗     
-        //  ██║████╗  ██║╚══██╔══╝██╔════╝██╔══██╗████╗  ██║██╔══██╗██║     
-        //  ██║██╔██╗ ██║   ██║   █████╗  ██████╔╝██╔██╗ ██║███████║██║     
-        //  ██║██║╚██╗██║   ██║   ██╔══╝  ██╔══██╗██║╚██╗██║██╔══██║██║     
-        //  ██║██║ ╚████║   ██║   ███████╗██║  ██║██║ ╚████║██║  ██║███████╗
-        //  ╚═╝╚═╝  ╚═══╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝
-        //                                                                  
         /// <summary>
         /// A <Name, MethodInfo> dict of reflected methods from the main Robot class, 
         /// that can be invoked from parsed strings from primitive values. 
@@ -1749,13 +1614,6 @@ namespace Machina
         /// Such methods are flagged with attributes, and loaded at runtime. 
         /// </summary>
         internal static Dictionary<string, MethodInfo> _reflectedAPICaseInsensitive;
-
-        ///// <summary>
-        ///// Stores how many overrides a particular method has. Useful to perform extra checks 
-        ///// when a call might be ambiguous.  
-        ///// </summary>
-        //private Dictionary<string, int> _reflectedAPIOverrides;
-
 
         /// <summary>
         /// Used to load all methods from the API that can be parseable from a string, using reflection. 
@@ -1781,8 +1639,6 @@ namespace Machina
                 Machina.Logger.Debug(pair.Key + " --> " + pair.Value);
             }
         }
-
+        #endregion
     }
-
-
 }
