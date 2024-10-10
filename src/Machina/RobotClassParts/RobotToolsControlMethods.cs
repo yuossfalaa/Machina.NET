@@ -81,7 +81,7 @@ public partial class Robot
     /// <param name="cogY"></param>
     /// <param name="cogZ"></param>
     /// <returns></returns>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool DefineTool(string name, double tcpX, double tcpY, double tcpZ,
         double tcp_vX0, double tcp_vX1, double tcp_vX2, double tcp_vY0, double tcp_vY1, double tcp_vY2,
         double weight, double cogX, double cogY, double cogZ)
@@ -108,7 +108,7 @@ public partial class Robot
     /// </summary>
     /// <param name="toolName"></param>
     /// <returns></returns>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool AttachTool(string toolName)
     {
         if (!Utilities.Strings.IsValidVariableName(toolName))
@@ -125,7 +125,7 @@ public partial class Robot
     /// all actions will refer to the flange as the Tool Center Point (TCP).
     /// </summary>
     /// <returns></returns>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool DetachTool()
     {
         return _control.IssueActionManager.IssueDetachRequest();
@@ -182,7 +182,7 @@ public partial class Robot
     /// <param name="pinId">Pin name.</param>
     /// <param name="isOn"></param>
     /// <param name="toolPin">Is this pin on the tool?</param>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool WriteDigital(string pinId, bool isOn, bool toolPin = false)
     {
         return _control.IssueActionManager.IssueWriteToDigitalIORequest(pinId, isOn, toolPin);
@@ -205,7 +205,7 @@ public partial class Robot
     /// <param name="pinId">Pin name.</param>
     /// <param name="value"></param>
     /// <param name="toolPin">Is this pin on the tool?</param>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool WriteAnalog(string pinId, double value, bool toolPin = false)
     {
         return _control.IssueActionManager.IssueWriteToAnalogIORequest(pinId, value, toolPin);

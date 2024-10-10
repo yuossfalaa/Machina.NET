@@ -10,7 +10,7 @@ public partial class Robot
     /// </summary>
     /// <param name="message"></param>
     /// <returns></returns>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool Message(string message)
     {
         return _control.IssueActionManager.IssueMessageRequest(message);
@@ -22,7 +22,7 @@ public partial class Robot
     /// </summary>
     /// <param name="comment"></param>
     /// <returns></returns>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool Comment(string comment)
     {
         return _control.IssueActionManager.IssueCommentRequest(comment);

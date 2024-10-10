@@ -20,7 +20,7 @@ public partial class Robot
     /// Sets the motion type (linear, joint...) for future issued Actions.
     /// </summary>
     /// <param name="motionType">"linear", "joint", etc.</param>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool MotionMode(string motionType)
     {
         MotionType mt;
@@ -47,7 +47,7 @@ public partial class Robot
     /// Increase the speed at which new Actions will be executed. This value will be applied to linear motion in mm/s, and rotational or angular motion in deg/s.
     /// </summary>
     /// <param name="speedInc">Speed increment in mm/s or deg/s.</param>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool Speed(double speedInc)
     {
         return _control.IssueActionManager.IssueSpeedRequest(speedInc, true);
@@ -57,7 +57,7 @@ public partial class Robot
     /// Set the speed at which new Actions will be executed. This value will be applied to linear motion in mm/s, and rotational or angular motion in deg/s.
     /// </summary>
     /// <param name="speed">Speed value in mm/s or deg/s.</param>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool SpeedTo(double speed)
     {
         return _control.IssueActionManager.IssueSpeedRequest(speed, false);
@@ -68,7 +68,7 @@ public partial class Robot
     /// </summary>
     /// <param name="accInc">Acceleration increment in mm/s^2 or deg/s^2.</param>
     /// <returns></returns>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool Acceleration(double accInc)
     {
         return _control.IssueActionManager.IssueAccelerationRequest(accInc, true);
@@ -79,7 +79,7 @@ public partial class Robot
     /// </summary>
     /// <param name="acceleration">Acceleration value in mm/s^2 or deg/s^2.</param>
     /// <returns></returns>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool AccelerationTo(double acceleration)
     {
         return _control.IssueActionManager.IssueAccelerationRequest(acceleration, false);
@@ -92,7 +92,7 @@ public partial class Robot
     /// Positioning" or "Blending Radius" in different platforms. 
     /// </summary>
     /// <param name="radiusInc">Smoothing radius increment in mm.</param>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool Precision(double radiusInc)
     {
         return _control.IssueActionManager.IssuePrecisionRequest(radiusInc, true);
@@ -105,7 +105,7 @@ public partial class Robot
     /// Positioning" or "Blending Radius" in different platforms. 
     /// </summary>
     /// <param name="radius">Smoothing radius in mm.</param>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool PrecisionTo(double radius)
     {
         return _control.IssueActionManager.IssuePrecisionRequest(radius, false);

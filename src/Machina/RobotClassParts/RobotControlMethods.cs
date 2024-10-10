@@ -10,7 +10,7 @@ public partial class Robot
     /// </summary>
     /// <param name="extrude">True/false for on/off.</param>
     /// <returns></returns>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool Extrude(bool extrude = true)
     {
         return _control.IssueActionManager.IssueExtrudeRequest(extrude);
@@ -22,7 +22,7 @@ public partial class Robot
     /// device ready for typical procedures like 3D printing. 
     /// </summary>
     /// <returns></returns>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool Initialize()
     {
         return _control.IssueActionManager.IssueInitializationRequest(true);
@@ -34,7 +34,7 @@ public partial class Robot
     /// the device for idleness.
     /// </summary>
     /// <returns></returns>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool Terminate()
     {
         return _control.IssueActionManager.IssueInitializationRequest(false);

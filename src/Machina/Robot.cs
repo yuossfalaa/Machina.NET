@@ -183,13 +183,13 @@ public partial class Robot
         Type robotType = typeof(Robot);
         _reflectedAPI = robotType
             .GetMethods()
-            .Where(x => x.GetCustomAttributes().OfType<Attributes.ParseableFromString>().Any())
+            .Where(x => x.GetCustomAttributes().OfType<Attributes.ParseableFromStringAttribute>().Any())
             .ToDictionary(y => y.Name);
 
         // This one is to issue warnings for badly cased instructions.  
         _reflectedAPICaseInsensitive = robotType
             .GetMethods()
-            .Where(x => x.GetCustomAttributes().OfType<Attributes.ParseableFromString>().Any())
+            .Where(x => x.GetCustomAttributes().OfType<Attributes.ParseableFromStringAttribute>().Any())
             .ToDictionary(y => y.Name, StringComparer.InvariantCultureIgnoreCase);
 
         Machina.Logger.Debug("Loaded reflected API");

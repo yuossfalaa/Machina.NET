@@ -15,7 +15,7 @@ public partial class Robot
     /// Buffers current state settings (speed, precision, motion type...), and opens up for 
     /// temporary settings changes to be reverted by PopSettings().
     /// </summary>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool PushSettings()
     {
         return _control.IssueActionManager.IssuePushPopRequest(true);
@@ -25,7 +25,7 @@ public partial class Robot
     /// Reverts the state settings (speed, precision, motion type...) to the previously buffered
     /// state by PushSettings().
     /// </summary>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool PopSettings()
     {
         return _control.IssueActionManager.IssuePushPopRequest(false);

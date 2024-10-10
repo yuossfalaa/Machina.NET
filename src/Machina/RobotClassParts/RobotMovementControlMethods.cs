@@ -26,7 +26,7 @@ public partial class Robot
     /// <param name="incY"></param>
     /// <param name="incZ"></param>
     /// <returns></returns>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool Move(double incX, double incY, double incZ = 0)
     {
         return Move(new Vector(incX, incY, incZ));
@@ -49,7 +49,7 @@ public partial class Robot
     /// <param name="y"></param>
     /// <param name="z"></param>
     /// <returns></returns>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool MoveTo(double x, double y, double z)
     {
         return MoveTo(new Vector(x, y, z));
@@ -84,7 +84,7 @@ public partial class Robot
     /// <param name="rotVecZ"></param>
     /// <param name="angDegs"></param>
     /// <returns></returns>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool Rotate(double rotVecX, double rotVecY, double rotVecZ, double angDegs)
     {
         return Rotate(new Rotation(rotVecX, rotVecY, rotVecZ, angDegs, true));
@@ -131,7 +131,7 @@ public partial class Robot
     /// <param name="y1"></param>
     /// <param name="y2"></param>
     /// <returns></returns>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool RotateTo(double x0, double x1, double x2, double y0, double y1, double y2)
     {
         return RotateTo((Rotation)new Orientation(x0, x1, x2, y0, y1, y2));
@@ -210,7 +210,7 @@ public partial class Robot
     /// <param name="vY1"></param>
     /// <param name="vY2"></param>
     /// <returns></returns>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool TransformTo(double x, double y, double z, double vX0, double vX1, double vX2, double vY0, double vY1, double vY2)
     {
         return _control.IssueActionManager.IssueTransformationRequest(new Vector(x, y, z), new Orientation(vX0, vX1, vX2, vY0, vY1, vY2), false, true);
@@ -249,7 +249,7 @@ public partial class Robot
     /// <param name="endY"></param>
     /// <param name="endZ"></param>
     /// <returns></returns>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool ArcMotion(
         double throughX, double throughY, double throughZ,
         double endX, double endY, double endZ)
@@ -300,7 +300,7 @@ public partial class Robot
     /// <param name="endY"></param>
     /// <param name="endZ"></param>
     /// <returns></returns>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool ArcMotionTo(
         double throughX, double throughY, double throughZ,
         double endX, double endY, double endZ)
@@ -400,7 +400,7 @@ public partial class Robot
     /// <param name="incJ5"></param>
     /// <param name="incJ6"></param>
     /// <returns></returns>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool Axes(double incJ1, double incJ2, double incJ3, double incJ4, double incJ5, double incJ6)
     {
         return _control.IssueActionManager.IssueJointsRequest(new Joints(incJ1, incJ2, incJ3, incJ4, incJ5, incJ6), true);
@@ -429,7 +429,7 @@ public partial class Robot
     /// <param name="j5"></param>
     /// <param name="j6"></param>
     /// <returns></returns>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool AxesTo(double j1, double j2, double j3, double j4, double j5, double j6)
     {
         return _control.IssueActionManager.IssueJointsRequest(new Joints(j1, j2, j3, j4, j5, j6), false);
@@ -442,7 +442,7 @@ public partial class Robot
     /// </summary>
     /// <param name="axisNumber">Axis number from 1 to 6.</param>
     /// <param name="increment">Increment value in mm or degrees.</param>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool ExternalAxis(int axisNumber, double increment)
     {
         if (axisNumber == 0)
@@ -509,7 +509,7 @@ public partial class Robot
     /// </summary>
     /// <param name="axisNumber">Axis number from 1 to 6.</param>
     /// <param name="value">Axis value in mm or degrees.</param>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool ExternalAxisTo(int axisNumber, double value)
     {
         if (axisNumber == 0)
@@ -593,7 +593,7 @@ public partial class Robot
     /// </summary>
     /// <param name="timeMillis">Time expressed in milliseconds</param>
     /// <returns></returns>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool Wait(long timeMillis)
     {
         return _control.IssueActionManager.IssueWaitRequest(timeMillis);

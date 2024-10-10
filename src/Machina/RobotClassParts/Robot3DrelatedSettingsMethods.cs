@@ -14,7 +14,7 @@ public partial class Robot
     /// <param name="devicePart">Device's part that will change temperature, e.g. "extruder", "bed", etc.</param>
     /// <param name="waitToReachTemp">If true, execution will wait for the part to heat up and resume when reached the target.</param>
     /// <returns></returns>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool Temperature(double temp, string devicePart, bool waitToReachTemp = true)
     {
         RobotPartType tt;
@@ -44,7 +44,7 @@ public partial class Robot
     /// <param name="devicePart">Device's part that will change temperature, e.g. "extruder", "bed", etc.</param>
     /// <param name="waitToReachTemp">If true, execution will wait for the part to heat up and resume when reached the target.</param>
     /// <returns></returns>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool TemperatureTo(double temp, string devicePart, bool waitToReachTemp = true)
     {
         RobotPartType tt;
@@ -72,7 +72,7 @@ public partial class Robot
     /// </summary>
     /// <param name="rateInc">Increment of mm of filament per mm of movement.</param>
     /// <returns></returns>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool ExtrusionRate(double rateInc)
     {
         return _control.IssueActionManager.IssueExtrusionRateRequest(rateInc, true);
@@ -83,7 +83,7 @@ public partial class Robot
     /// </summary>
     /// <param name="rate">mm of filament per mm of movement.</param>
     /// <returns></returns>
-    [ParseableFromString]
+    [ParseableFromStringAttribute]
     public bool ExtrusionRateTo(double rate)
     {
         return _control.IssueActionManager.IssueExtrusionRateRequest(rate, false);
