@@ -1,30 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Machina.Controllers;
 
-namespace Machina.Controllers
+/// <summary>
+/// A static factory class that creates ControlManagers based on ControlType.
+/// </summary>
+internal static class ControlFactory
 {
-    /// <summary>
-    /// A static factory class that creates ControlManagers based on ControlType.
-    /// </summary>
-    internal static class ControlFactory
+    internal static ControlManager GetControlManager(Control control)
     {
-        internal static ControlManager GetControlManager(Control control)
+        return control.ControlMode switch
         {
-            switch (control.ControlMode)
-            {
-                case ControlType.Stream:
-                case ControlType.Online:
-                    return new StreamControlManager(control);
-
-                case ControlType.Offline:
-                    return new OfflineControlManager(control);
-
-                default:
-                    return null;
-            }
-        }
+            ControlType.Stream or ControlType.Online => new StreamControlManager(control),
+            ControlType.Offline => new OfflineControlManager(control),
+            _ => null,
+        };
     }
 }

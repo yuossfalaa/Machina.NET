@@ -1,56 +1,38 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Machina.Drivers;
 
-namespace Machina.Controllers
+namespace Machina.Controllers;
+
+/// <summary>
+/// A manager for Control objects running ControlType.Stream
+/// </summary>
+internal class StreamControlManager(Control parent) : ControlManager(parent)
 {
-    /// <summary>
-    /// A manager for Control objects running ControlType.Stream
-    /// </summary>
-    internal class StreamControlManager : ControlManager
+    public override bool Terminate()
     {
-        public StreamControlManager(Control parent) : base(parent) { }
+        throw new NotImplementedException();
+    }
 
-        public override bool Terminate()
+    internal override void SetCommunicationObject()
+    {
+        // @TODO: shim assignment of correct robot model/brand
+        _control.Driver = _control.parentRobot.Brand switch
         {
-            throw new NotImplementedException();
-        }
+            RobotType.ABB => new DriverABB(_control),
+            RobotType.UR => new DriverUR(_control),
+            RobotType.KUKA => new DriverKUKA(_control),
+            _ => throw new NotImplementedException(),
+        };
+    }
 
-        internal override void SetCommunicationObject()
-        {
-            // @TODO: shim assignment of correct robot model/brand
-            switch (_control.parentRobot.Brand)
-            {
-                case RobotType.ABB:
-                    _control.Driver = new DriverABB(_control);
-                    break;
+    internal override void LinkWriteCursor()
+    {
+        // Pass the streamQueue object as a shared reference
+        _control.Driver.LinkWriteCursor(_control.ReleaseCursor);
+    }
 
-                case RobotType.UR:
-                    _control.Driver = new DriverUR(_control);
-                    break;
-
-                case RobotType.KUKA:
-                    _control.Driver = new DriverKUKA(_control);
-                    break;
-
-                default:
-                    throw new NotImplementedException();
-            }
-        }
-
-        internal override void LinkWriteCursor()
-        {
-            // Pass the streamQueue object as a shared reference
-            _control.Driver.LinkWriteCursor(_control.ReleaseCursor);
-        }
-
-        internal override void SetStateCursor()
-        {
-            //_control.stateCursor = _control.ExecutionCursor;
-            _control.SetStateCursor(_control.ExecutionCursor);
-        }
+    internal override void SetStateCursor()
+    {
+        _control.SetStateCursor(_control.ExecutionCursor);
     }
 }
