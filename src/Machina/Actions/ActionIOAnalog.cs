@@ -1,18 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Machina
-{
-    //  ██╗ ██████╗  █████╗ ███╗   ██╗ █████╗ ██╗      ██████╗  ██████╗ 
-    //  ██║██╔═══██╗██╔══██╗████╗  ██║██╔══██╗██║     ██╔═══██╗██╔════╝ 
-    //  ██║██║   ██║███████║██╔██╗ ██║███████║██║     ██║   ██║██║  ███╗
-    //  ██║██║   ██║██╔══██║██║╚██╗██║██╔══██║██║     ██║   ██║██║   ██║
-    //  ██║╚██████╔╝██║  ██║██║ ╚████║██║  ██║███████╗╚██████╔╝╚██████╔╝
-    //  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝ ╚═════╝  ╚═════╝ 
-    //                                                                  
+{                                                              
     /// <summary>
     /// Writes a value to analog pin #.
     /// </summary>
@@ -36,9 +25,6 @@ namespace Machina
 
         public override string ToString()
         {
-            //return string.Format("Set analog IO {0} to {1}",
-            //    this.pinName,
-            //    this.value);
             return $"Set {(this.isToolPin ? "tool " : "")}analog IO {(this.isDigit ? this.pinNum.ToString() : "\"" + this.pinName + "\"")} to {this.value}";
         }
 

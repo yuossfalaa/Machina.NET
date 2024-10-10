@@ -3,6 +3,9 @@ using Machina.Types.Geometry;
 
 namespace Machina;
 
+/// <summary>
+/// This class holds Methods to issue Actions and then use a control class to apply the action request
+/// </summary>
 internal class IssueActionManager
 {
     private readonly Control _control;

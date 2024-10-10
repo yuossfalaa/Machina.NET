@@ -1,47 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Machina
+﻿namespace Machina;
+                                
+/// <summary>
+/// An Action to change the current speed setting.
+/// </summary>
+public class ActionSpeed : Action
 {
+    public double speed;
+    public bool relative;
 
-    //  ███████╗██████╗ ███████╗███████╗██████╗ 
-    //  ██╔════╝██╔══██╗██╔════╝██╔════╝██╔══██╗
-    //  ███████╗██████╔╝█████╗  █████╗  ██║  ██║
-    //  ╚════██║██╔═══╝ ██╔══╝  ██╔══╝  ██║  ██║
-    //  ███████║██║     ███████╗███████╗██████╔╝
-    //  ╚══════╝╚═╝     ╚══════╝╚══════╝╚═════╝ 
-    //                                          
-    /// <summary>
-    /// An Action to change the current speed setting.
-    /// </summary>
-    public class ActionSpeed : Action
+    public override ActionType Type => ActionType.Speed;
+
+    public ActionSpeed(double speed, bool relative) : base()
     {
-        public double speed;
-        public bool relative;
+        this.speed = speed;
+        this.relative = relative;
+    }
 
-        public override ActionType Type => ActionType.Speed;
+    public override string ToString()
+    {
+        return relative ?
+            string.Format("{0} motion speed by {1} mm/s or deg/s", this.speed < 0 ? "Decrease" : "Increase", speed) :
+            string.Format("Set motion speed to {0} mm/s or deg/s", speed);
+    }
 
-        public ActionSpeed(double speed, bool relative) : base()
-        {
-            this.speed = speed;
-            this.relative = relative;
-        }
-
-        public override string ToString()
-        {
-            return relative ?
-                string.Format("{0} motion speed by {1} mm/s or deg/s", this.speed < 0 ? "Decrease" : "Increase", speed) :
-                string.Format("Set motion speed to {0} mm/s or deg/s", speed);
-        }
-
-        public override string ToInstruction()
-        {
-            return relative ?
-                $"Speed({this.speed});" :
-                $"SpeedTo({this.speed});";
-        }
+    public override string ToInstruction()
+    {
+        return relative ?
+            $"Speed({this.speed});" :
+            $"SpeedTo({this.speed});";
     }
 }
