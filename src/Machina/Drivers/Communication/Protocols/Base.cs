@@ -1,64 +1,57 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace Machina.Drivers.Communication.Protocols
+namespace Machina.Drivers.Communication.Protocols;
+
+/// <summary>
+/// A base class representing a translator from abstract Machina Actions + Cursors
+/// to messages in the communication protocol used by the device's server/firmata.
+/// </summary>
+abstract class Base
 {
     /// <summary>
-    /// A base class representing a translator from abstract Machina Actions + Cursors
-    /// to messages in the communication protocol used by the device's server/firmata.
+    /// Given a (write) cursor, apply next Action in the buffer and return a List of messages
+    /// for the device's driver/firmata.
     /// </summary>
-    abstract class Base
+    /// <param name="cursor"></param>
+    /// <returns></returns>
+    public List<string> GetMessagesForNextAction(RobotCursor cursor)
     {
-        /// <summary>
-        /// Given a (write) cursor, apply next Action in the buffer and return a List of messages
-        /// for the device's driver/firmata.
-        /// </summary>
-        /// <param name="cursor"></param>
-        /// <returns></returns>
-        public List<string> GetMessagesForNextAction(RobotCursor cursor)
-        {
-            Action action;
 
-            if (!cursor.ApplyNextAction(out action)) return null;  // cursor buffer is empty
+        if (!cursor.ApplyNextAction(out Action action)) return null;  // cursor buffer is empty
 
-            return GetActionMessages(action, cursor);  // this might be null if the action doesn't have a message representation here (e.g. PushSettings, Comment...)
-        }
-        //Machina.Drivers.Communication
-
-        public List<string> GetMessagesForNextAction_KUKA(RobotCursor cursor, out Action actionObj)
-        {
-            Action action;
-
-            if (!cursor.ApplyNextAction(out action))
-            {
-                actionObj = null;
-                return null;  // cursor buffer is empty
-            }
-            actionObj = action;
-            return GetActionMessages(action, cursor);  // this might be null if the action doesn't have a message representation here (e.g. PushSettings, Comment...)
-        }
-
-        /// <summary>
-        /// Given a (write cursor, apply next Action in the buffer and return a byte[] representation
-        /// of the message for the device's driver/firmata.
-        /// </summary>
-        /// <param name="cursor"></param>
-        /// <returns></returns>
-        public virtual byte[] GetBytesForNextAction(RobotCursor cursor) => null;
-
-        /// <summary>
-        /// Given an Action and a RobotCursor representing the state of the robot after application, 
-        /// return a List of strings with the messages necessary to perform this Action adhering to 
-        /// the device's communication protocol.
-        /// </summary>
-        /// <param name="action"></param>
-        /// <param name="cursor"></param>
-        /// <returns></returns>
-        internal virtual List<string> GetActionMessages(Action action, RobotCursor cursor) => null;
+        return GetActionMessages(action, cursor);  // this might be null if the action doesn't have a message representation here (e.g. PushSettings, Comment...)
     }
-    
+    //Machina.Drivers.Communication
+
+    public List<string> GetMessagesForNextAction_KUKA(RobotCursor cursor, out Action actionObj)
+    {
+
+        if (!cursor.ApplyNextAction(out Action action))
+        {
+            actionObj = null;
+            return null;  // cursor buffer is empty
+        }
+        actionObj = action;
+        return GetActionMessages(action, cursor);  // this might be null if the action doesn't have a message representation here (e.g. PushSettings, Comment...)
+    }
+
+    /// <summary>
+    /// Given a (write cursor, apply next Action in the buffer and return a byte[] representation
+    /// of the message for the device's driver/firmata.
+    /// </summary>
+    /// <param name="cursor"></param>
+    /// <returns></returns>
+    public virtual byte[] GetBytesForNextAction(RobotCursor cursor) => null;
+
+    /// <summary>
+    /// Given an Action and a RobotCursor representing the state of the robot after application, 
+    /// return a List of strings with the messages necessary to perform this Action adhering to 
+    /// the device's communication protocol.
+    /// </summary>
+    /// <param name="action"></param>
+    /// <param name="cursor"></param>
+    /// <returns></returns>
+    internal virtual List<string> GetActionMessages(Action action, RobotCursor cursor) => null;
 }
+
 

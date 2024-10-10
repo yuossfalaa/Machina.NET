@@ -1,29 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Machina.Drivers.Communication.Protocols
+namespace Machina.Drivers.Communication.Protocols;
+
+internal static class Factory
 {
-    internal static class Factory
+    internal static Base GetTranslator(Driver driver)
     {
-        internal static Base GetTranslator(Driver driver)
+        return driver.parentControl.parentRobot.Brand switch
         {
-            switch (driver.parentControl.parentRobot.Brand)
-            {
-                case RobotType.ABB:
-                    return new ABBCommunicationProtocol();
-
-                case RobotType.UR:
-                    return new URCommunicationProtocol();
-
-                case RobotType.KUKA:
-                    return new KUKACommunicationProtocol();
-
-                default:
-                    throw new NotImplementedException();
-            }
-        }
+            RobotType.ABB => new ABBCommunicationProtocol(),
+            RobotType.UR => new URCommunicationProtocol(),
+            RobotType.KUKA => new KUKACommunicationProtocol(),
+            _ => throw new NotImplementedException(),
+        };
     }
 }
