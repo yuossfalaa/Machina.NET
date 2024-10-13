@@ -18,4 +18,9 @@ public class ActionCoordinates : Action
     }
 
     public override string ToInstruction() => null;
+
+    internal override bool Apply(RobotCursor robCur)
+    {
+        return robCur.ApplyAction(this);
+    }
 }

@@ -67,6 +67,8 @@ public abstract class Action : IInstructable
         this.Id = -1;
     }
 
+    internal abstract bool Apply(RobotCursor robCur);
+
     /// <summary>
     /// Generates a string representing a "serialized" instruction with the 
     /// Machina-API command that would have generated this action. 

@@ -25,4 +25,9 @@ public class ActionCustomCode : Action
 
     public override string ToInstruction() =>
             $"CustomCode(\"{this.statement}\",{this.isDeclaration});";
+
+    internal override bool Apply(RobotCursor robCur)
+    {
+        return robCur.ApplyAction(this);
+    }
 }

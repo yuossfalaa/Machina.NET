@@ -26,4 +26,9 @@ public class ActionAcceleration : Action
             $"Acceleration({this.acceleration});" :
             $"AccelerationTo({this.acceleration});";
     }
+
+    internal override bool Apply(RobotCursor robCur)
+    {
+        return robCur.ApplyAction(this);
+    }
 }

@@ -92,4 +92,8 @@ public class ActionArcMotion : Action
                         Math.Round(this.end.Origin.Y, Geometry.STRING_ROUND_DECIMALS_MM),
                         Math.Round(this.end.Origin.Z, Geometry.STRING_ROUND_DECIMALS_MM));
     }
+    internal override bool Apply(RobotCursor robCur)
+    {
+        return robCur.ApplyAction(this);
+    }
 }

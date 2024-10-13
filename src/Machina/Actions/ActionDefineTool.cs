@@ -39,4 +39,8 @@ public class ActionDefineTool : Action
     {
         return $"DefineTool(\"{tool.name}\",{tool.TCPPosition.X},{tool.TCPPosition.Y},{tool.TCPPosition.Z},{tool.TCPOrientation.XAxis.X},{tool.TCPOrientation.XAxis.Y},{tool.TCPOrientation.XAxis.Z},{tool.TCPOrientation.YAxis.X},{tool.TCPOrientation.YAxis.Y},{tool.TCPOrientation.YAxis.Z},{tool.Weight},{tool.CenterOfGravity.X},{tool.CenterOfGravity.Y},{tool.CenterOfGravity.Z});";
     }
+    internal override bool Apply(RobotCursor robCur)
+    {
+        return robCur.ApplyAction(this);
+    }
 }

@@ -18,4 +18,8 @@ public class ActionDetachTool : Action
     {
         return $"DetachTool();";
     }
+    internal override bool Apply(RobotCursor robCur)
+    {
+        return robCur.ApplyAction(this);
+    }
 }

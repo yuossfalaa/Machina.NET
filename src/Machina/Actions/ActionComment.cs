@@ -23,4 +23,8 @@ public class ActionComment : Action
     {
         return null;
     }
+    internal override bool Apply(RobotCursor robCur)
+    {
+        return robCur.ApplyAction(this);
+    }
 }

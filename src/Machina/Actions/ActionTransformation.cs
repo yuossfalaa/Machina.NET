@@ -71,4 +71,8 @@ public class ActionTransformation : Action
                 Math.Round(ori.YAxis.Z, Geometry.STRING_ROUND_DECIMALS_MM)
             );
     }
+    internal override bool Apply(RobotCursor robCur)
+    {
+        return robCur.ApplyAction(this);
+    }
 }

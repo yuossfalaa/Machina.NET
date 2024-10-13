@@ -2,7 +2,7 @@
 using Machina.Types.Geometry;
 
 namespace Machina;
-                                                                                            
+
 /// <summary>
 /// Sets the temperature of the 3D printer part, and optionally waits for the part to reach the temp to resume eexecution.
 /// </summary>
@@ -42,5 +42,9 @@ public class ActionTemperature : Action
         }
     }
 
-    public override string ToInstruction() => null;
+    public override string ToInstruction() => null; 
+    internal override bool Apply(RobotCursor robCur)
+    {
+        return robCur.ApplyAction(this);
+    }
 }

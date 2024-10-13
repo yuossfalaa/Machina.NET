@@ -29,4 +29,8 @@ public class ActionPrecision : Action
             $"Precision({this.precision});" :
             $"PrecisionTo({this.precision});";
     }
+    internal override bool Apply(RobotCursor robCur)
+    {
+        return robCur.ApplyAction(this);
+    }
 }

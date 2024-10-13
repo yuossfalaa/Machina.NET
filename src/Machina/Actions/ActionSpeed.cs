@@ -29,4 +29,8 @@ public class ActionSpeed : Action
             $"Speed({this.speed});" :
             $"SpeedTo({this.speed});";
     }
+    internal override bool Apply(RobotCursor robCur)
+    {
+        return robCur.ApplyAction(this);
+    }
 }

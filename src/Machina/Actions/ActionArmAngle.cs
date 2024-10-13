@@ -29,4 +29,8 @@ public class ActionArmAngle : Action
             $"ArmAngle({this.angle});" :
             $"ArmAngleTo({this.angle});";
     }
+    internal override bool Apply(RobotCursor robCur)
+    {
+        return robCur.ApplyAction(this);
+    }
 }

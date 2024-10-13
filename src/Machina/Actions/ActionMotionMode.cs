@@ -24,4 +24,8 @@ public class ActionMotionMode : Action
     {
         return $"MotionMode(\"{(Enum.GetName(typeof(MotionType), this.motionType))}\");";
     }
+    internal override bool Apply(RobotCursor robCur)
+    {
+        return robCur.ApplyAction(this);
+    }
 }

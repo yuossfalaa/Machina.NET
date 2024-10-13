@@ -33,4 +33,8 @@ public class ActionIODigital : Action
     {
         return $"WriteDigital({(this.isDigit ? this.pinNum.ToString() : "\"" + this.pinName + "\"")},{this.on}{(this.isToolPin ? "," + this.isToolPin : "" )});";
     }
+    internal override bool Apply(RobotCursor robCur)
+    {
+        return robCur.ApplyAction(this);
+    }
 }

@@ -56,4 +56,8 @@ public class ActionRotation : Action
             Math.Round(ori.YAxis.Z, Geometry.STRING_ROUND_DECIMALS_VECTOR)
         );
     }
+    internal override bool Apply(RobotCursor robCur)
+    {
+        return robCur.ApplyAction(this);
+    }
 }

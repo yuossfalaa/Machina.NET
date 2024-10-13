@@ -22,4 +22,8 @@ public class ActionMessage : Action
     {
         return $"Message(\"{this.message}\");";
     }
+    internal override bool Apply(RobotCursor robCur)
+    {
+        return robCur.ApplyAction(this);
+    }
 }

@@ -20,4 +20,8 @@ public class ActionExtrusion : Action
     }
 
     public override string ToInstruction() => null;
+    internal override bool Apply(RobotCursor robCur)
+    {
+        return robCur.ApplyAction(this);
+    }
 }

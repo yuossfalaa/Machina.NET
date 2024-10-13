@@ -32,5 +32,9 @@ namespace Machina
         {
             return $"WriteAnalog({(this.isDigit ? this.pinNum.ToString() : "\"" + this.pinName + "\"")},{this.value}{(this.isToolPin ? "," + this.isToolPin : "")});";
         }
+        internal override bool Apply(RobotCursor robCur)
+        {
+            return robCur.ApplyAction(this);
+        }
     }
 }

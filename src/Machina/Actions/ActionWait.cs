@@ -24,4 +24,8 @@ public class ActionWait : Action
     {
         return $"Wait({this.millis});";
     }
+    internal override bool Apply(RobotCursor robCur)
+    {
+        return robCur.ApplyAction(this);
+    }
 }

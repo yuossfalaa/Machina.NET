@@ -58,4 +58,8 @@ public class ActionExternalAxis : Action
 
         return inst;
     }
+    internal override bool Apply(RobotCursor robCur)
+    {
+        return robCur.ApplyAction(this);
+    }
 }

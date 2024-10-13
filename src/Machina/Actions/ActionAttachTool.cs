@@ -24,4 +24,9 @@ public class ActionAttachTool : Action
     {
         return $"AttachTool(\"{this.toolName}\");";
     }
+
+    internal override bool Apply(RobotCursor robCur)
+    {
+        return robCur.ApplyAction(this);
+    }
 }

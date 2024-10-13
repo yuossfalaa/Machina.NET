@@ -27,4 +27,8 @@ public class ActionPushPop : Action
             "PushSettings();" :
             "PopSettings();";
     }
+    internal override bool Apply(RobotCursor robCur)
+    {
+        return robCur.ApplyAction(this);
+    }
 }

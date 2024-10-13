@@ -39,4 +39,8 @@ public class ActionAxes : Action
             Math.Round(this.joints.J6, Geometry.STRING_ROUND_DECIMALS_DEGS)
         );
     }
+    internal override bool Apply(RobotCursor robCur)
+    {
+        return robCur.ApplyAction(this);
+    }
 }
