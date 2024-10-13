@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Machina
 {
@@ -29,7 +26,7 @@ namespace Machina
             if (buffer.Count >= limit)
             {
                 cursor.logger.Error("Too many Pushes without Pops?");
-                throw new Exception("TOO MANY PUSHES WITHOUT POPS?");
+                throw new InvalidOperationException("TOO MANY PUSHES WITHOUT POPS?");
             }
             buffer.Add(cursor.GetSettings());
             return true;
@@ -37,14 +34,15 @@ namespace Machina
 
         public Settings Pop(RobotCursor cursor)
         {
-            if (buffer.Count > 0)
+            if (buffer.Count == 0)
             {
-                _settingsBeforeLastPopped = cursor.GetSettings();
-                _lastPoppped = buffer.Last();
-                buffer.RemoveAt(buffer.Count - 1);
-                return _lastPoppped;
+                return null; 
             }
-            return null;
+
+            _settingsBeforeLastPopped = cursor.GetSettings();
+            _lastPoppped = buffer[^1];
+            buffer.RemoveAt(buffer.Count - 1);
+            return _lastPoppped;
         }
 
         public void DebugBuffer()

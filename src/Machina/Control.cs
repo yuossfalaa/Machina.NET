@@ -16,53 +16,6 @@ namespace Machina;
 /// </summary>
 class Control
 {
-    #region Public Vars
-    // Some 'environment variables' to define check states and behavior
-    public const bool SAFETY_STOP_IMMEDIATE_ON_DISCONNECT = true;         // when disconnecting from a controller, issue an immediate Stop request?
-
-    // @TODO: move to cursors, make it device specific
-    public const double DEFAULT_SPEED = 20;                                 // default speed for new actions in mm/s and deg/s
-    public const double DEFAULT_ACCELERATION = 30;                          // default acc for new actions in mm/s^2 and deg/s^2; zero values let the controller figure out accelerations
-    public const double DEFAULT_PRECISION = 5;                              // default precision for new actions
-
-    public const MotionType DEFAULT_MOTION_TYPE = MotionType.Linear;        // default motion type for new actions
-    public const ReferenceCS DEFAULT_REFCS = ReferenceCS.World;             // default reference coordinate system for relative transform actions
-    public const ControlType DEFAULT_CONTROLMODE = ControlType.Offline;
-    public const CycleType DEFAULT_RUNMODE = CycleType.Once;
-    public const ConnectionType DEFAULT_CONNECTIONMODE = ConnectionType.User;
-
-    public ControlType ControlMode { get { return _controlMode; } internal set { _controlMode = value; } }
-
-    public IssueActionManager IssueActionManager;
-
-    // Cursors
-    private RobotCursor _issueCursor, _releaseCursor, _executionCursor, _motionCursor;
-    /// <summary>
-    /// A virtual representation of the state of the device after application of issued actions.
-    /// </summary>
-    public RobotCursor IssueCursor => _issueCursor;
-
-    /// <summary>
-    /// A virtual representation of the state of the device after releasing pending actions to the controller.
-    /// Keeps track of the state of an issue robot immediately following all the actions released from the 
-    /// actionsbuffer to target device defined by controlMode, like an offline program, a full intruction execution 
-    /// or a streamed target.
-    /// </summary>
-    public RobotCursor ReleaseCursor => _releaseCursor;
-
-    /// <summary>
-    /// A virtual representation of the state of the device after an action has been executed. 
-    /// </summary>
-    public RobotCursor ExecutionCursor => _executionCursor;
-
-    /// <summary>
-    /// A virtual representation of the state of the device tracked in pseudo real time. 
-    /// Is independent from the other cursors, and gets updated (if available) at periodic intervals from the controller. 
-    /// </summary>
-    public RobotCursor MotionCursor => _motionCursor;
-
-    #endregion
-
     #region Internal & Private Vars
 
     /// <summary>
@@ -123,6 +76,53 @@ class Control
     /// </summary>
     private int _actionCounter = 1;
 
+
+    #endregion
+
+    #region Public Vars
+    // Some 'environment variables' to define check states and behavior
+    public const bool SAFETY_STOP_IMMEDIATE_ON_DISCONNECT = true;         // when disconnecting from a controller, issue an immediate Stop request?
+
+    // @TODO: move to cursors, make it device specific
+    public const double DEFAULT_SPEED = 20;                                 // default speed for new actions in mm/s and deg/s
+    public const double DEFAULT_ACCELERATION = 30;                          // default acc for new actions in mm/s^2 and deg/s^2; zero values let the controller figure out accelerations
+    public const double DEFAULT_PRECISION = 5;                              // default precision for new actions
+
+    public const MotionType DEFAULT_MOTION_TYPE = MotionType.Linear;        // default motion type for new actions
+    public const ReferenceCS DEFAULT_REFCS = ReferenceCS.World;             // default reference coordinate system for relative transform actions
+    public const ControlType DEFAULT_CONTROLMODE = ControlType.Offline;
+    public const CycleType DEFAULT_RUNMODE = CycleType.Once;
+    public const ConnectionType DEFAULT_CONNECTIONMODE = ConnectionType.User;
+
+    public ControlType ControlMode { get { return _controlMode; } internal set { _controlMode = value; } }
+
+    public IssueActionManager IssueActionManager;
+
+    // Cursors
+    private RobotCursor _issueCursor, _releaseCursor, _executionCursor, _motionCursor;
+    /// <summary>
+    /// A virtual representation of the state of the device after application of issued actions.
+    /// </summary>
+    public RobotCursor IssueCursor => _issueCursor;
+
+    /// <summary>
+    /// A virtual representation of the state of the device after releasing pending actions to the controller.
+    /// Keeps track of the state of an issue robot immediately following all the actions released from the 
+    /// actionsbuffer to target device defined by controlMode, like an offline program, a full intruction execution 
+    /// or a streamed target.
+    /// </summary>
+    public RobotCursor ReleaseCursor => _releaseCursor;
+
+    /// <summary>
+    /// A virtual representation of the state of the device after an action has been executed. 
+    /// </summary>
+    public RobotCursor ExecutionCursor => _executionCursor;
+
+    /// <summary>
+    /// A virtual representation of the state of the device tracked in pseudo real time. 
+    /// Is independent from the other cursors, and gets updated (if available) at periodic intervals from the controller. 
+    /// </summary>
+    public RobotCursor MotionCursor => _motionCursor;
 
     #endregion
 
@@ -190,7 +190,7 @@ class Control
     /// <param name="password"></param>
     /// <returns></returns>
     public bool SetUserCredentials(string name, string password) =>
-        _driver == null ? false : _driver.SetUser(name, password);
+        _driver != null && _driver.SetUser(name, password);
 
     #endregion
 
@@ -415,19 +415,11 @@ class Control
     /// <returns>Whether the execution was successful</returns>
     public bool IssueApplyActionRequestFromStringStatement(string statement)
     {
-        if (string.IsNullOrWhiteSpace(statement))
-        {
-            logger.Error("Instruction statement cannot be null or empty.");
+        if (!IsValidStatement(statement))
             return false;
-        }
 
-        // Parse the statement into method name and arguments
-        string[] args = Machina.Utilities.Parsing.ParseStatement(statement);
-        if (args == null || args.Length == 0)
-        {
-            logger.Error($"Invalid instruction: \"{statement}\"");
+        if (!TryParseStatement(statement, out string[] args))
             return false;
-        }
 
         string methodName = args[0];
         var providedArgs = args.Skip(1).ToArray(); // Exclude method name
@@ -439,87 +431,30 @@ class Control
                                     .Select(kv => kv.Value)
                                     .ToArray();
 
-        if (candidateMethods.Length == 0)
-        {
-            if (Robot._reflectedAPICaseInsensitive.TryGetValue(methodName, out MethodInfo methodNoCasing))
-            {
-                logger.Error($"Did you mean \"{methodNoCasing.Name}\"? Remember, Machina is case-sensitive.");
-            }
-            else
-            {
-                logger.Error($"No method found with the name \"{methodName}\".");
-            }
+        //@TODO:Why is this case Sensitive , 'Move' will move the robot and 'move' will send you to space ??
+        //TryGetCandidate
+        if (!TryGetCaseInsensitiveCandidate(candidateMethods, methodName))
             return false;
-        }
 
         // Filter candidate methods by matching parameter counts and types
-        MethodInfo matchedMethod = FindMatchingMethod(candidateMethods, providedArgs);
-        if (matchedMethod == null)
-        {
-            logger.Error($"No suitable method found with matching parameters for \"{methodName}\".");
+        if (!TryGetMatchingMethod(candidateMethods, methodName, providedArgs, out MethodInfo matchedMethod))
             return false;
-        }
 
         // Correct number of parameters?
-        ParameterInfo[] paramInfos = matchedMethod.GetParameters();
-        // how many did the user missed providing
-        int missingParameterCount = paramInfos.Length - args.Length + 1;  
-        if (paramInfos.Length != args.Length - 1)
-        {
-            // Check if the method contains any optional parameters
-            // how many parameters are optional in the method (have default values)?
-            int optionalParameterCount  = paramInfos.Count((param) => param.IsOptional); 
-           
-            if (paramInfos.Length < args.Length - 1 ||              // too many args provided
-                missingParameterCount > optionalParameterCount)     // less than minimum
-            {
-                logger.Error($"Incorrect amount of parameters for \"{methodName}\", please use as \"{matchedMethod}\"");
-                return false;
-            }
-            else
-            {
-                logger.Debug($"Detected action entry with {optionalParameterCount} optional parameters.");
-            }
-        }
+        if (!TryGetParameterInfo(matchedMethod, args, methodName, out ParameterInfo[] paramInfos))
+            return false;
 
         // Convert parameters to the correct types
-        for (int i = 0; i < providedArgs.Length; i++)
-        {
-            Type targetType = paramInfos[i].ParameterType;
-            if (!TryConvertParameter(providedArgs[i], targetType, out convertedParams[i]))
-            {
-                logger.Error($"Could not convert \"{providedArgs[i]}\" to type {targetType.Name}.");
-                return false;
-            }
-        }
+        if (!TryConvertParamaters(providedArgs, ref convertedParams, paramInfos))
+            return false;
 
         // Handle optional parameters (fill with defaults)
-        for (int i = providedArgs.Length; i < paramInfos.Length; i++)
-        {
-            convertedParams[i] = paramInfos[i].DefaultValue ?? Type.Missing;
-        }
+        HandelOptionalParamaters(providedArgs, ref convertedParams, paramInfos);
 
         // Invoke the method and handle the return value
-        try
-        {
-            object result = matchedMethod.Invoke(this.parentRobot, convertedParams);
-
-            if (result is bool success)
-            {
-                return success;
-            }
-            else
-            {
-                logger.Error($"Unexpected return type from \"{methodName}\". Expected bool.");
-                return false;
-            }
-        }
-        catch (Exception ex)
-        {
-            logger.Error($"Error executing method \"{methodName}\": {ex.Message}");
-            return false;
-        }
+        return InvokeMethod(methodName, convertedParams, matchedMethod);
     }
+
     /// <summary>
     /// Issue an Action of whatever kind...
     /// </summary>
@@ -605,7 +540,126 @@ class Control
         return false;
     }
 
+    private bool InvokeMethod(string methodName, object[] convertedParams, MethodInfo matchedMethod)
+    {
+        try
+        {
+            object result = matchedMethod.Invoke(this.parentRobot, convertedParams);
 
+            if (result is bool success)
+            {
+                return success;
+            }
+            else
+            {
+                logger.Error($"Unexpected return type from \"{methodName}\". Expected bool.");
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.Error($"Error executing method \"{methodName}\": {ex.Message}");
+            return false;
+        }
+    }
+
+    private static void HandelOptionalParamaters(string[] providedArgs, ref object[] convertedParams, ParameterInfo[] paramInfos)
+    {
+        for (int i = providedArgs.Length; i < paramInfos.Length; i++)
+        {
+            convertedParams[i] = paramInfos[i].DefaultValue ?? Type.Missing;
+        }
+    }
+
+    private bool TryConvertParamaters(string[] providedArgs, ref object[] convertedParams, ParameterInfo[] paramInfos)
+    {
+        for (int i = 0; i < providedArgs.Length; i++)
+        {
+            Type targetType = paramInfos[i].ParameterType;
+            if (!TryConvertParameter(providedArgs[i], targetType, out convertedParams[i]))
+            {
+                logger.Error($"Could not convert \"{providedArgs[i]}\" to type {targetType.Name}.");
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private bool TryGetParameterInfo(MethodInfo matchedMethod, string[] args, string methodName, out ParameterInfo[] paramInfos)
+    {
+        paramInfos = matchedMethod.GetParameters();
+        // how many did the user missed providing
+        int missingParameterCount = paramInfos.Length - args.Length + 1;
+        if (paramInfos.Length != args.Length - 1)
+        {
+            // Check if the method contains any optional parameters
+            // how many parameters are optional in the method (have default values)?
+            int optionalParameterCount = paramInfos.Count((param) => param.IsOptional);
+
+            if (paramInfos.Length < args.Length - 1 ||              // too many args provided
+                missingParameterCount > optionalParameterCount)     // less than minimum
+            {
+                logger.Error($"Incorrect amount of parameters for \"{methodName}\", please use as \"{matchedMethod}\"");
+                return false;
+            }
+            else
+            {
+                logger.Debug($"Detected action entry with {optionalParameterCount} optional parameters.");
+                return true;
+            }
+        }
+        return true;
+    }
+
+    private bool TryGetMatchingMethod(MethodInfo[] candidateMethods, string methodName, string[] providedArgs, out MethodInfo matchedMethod)
+    {
+        matchedMethod = FindMatchingMethod(candidateMethods, providedArgs);
+        if (matchedMethod == null)
+        {
+            logger.Error($"No suitable method found with matching parameters for \"{methodName}\".");
+            return false;
+        }
+        return true;
+    }
+
+    private bool IsValidStatement(string statement)
+    {
+        if (string.IsNullOrWhiteSpace(statement))
+        {
+            logger.Error("Instruction statement cannot be null or empty.");
+            return false;
+        }
+        return true;
+    }
+
+    private bool TryParseStatement(string statement, out string[] args)
+    {
+        // Parse the statement into method name and arguments
+        args = Machina.Utilities.Parsing.ParseStatement(statement);
+        if (args == null || args.Length == 0)
+        {
+            logger.Error($"Invalid instruction: \"{statement}\"");
+            return false;
+        }
+        return true;
+    }
+
+    private bool TryGetCaseInsensitiveCandidate(MethodInfo[] candidateMethods, string methodName)
+    {
+        if (candidateMethods.Length == 0)
+        {
+            if (Robot._reflectedAPICaseInsensitive.TryGetValue(methodName, out MethodInfo methodNoCasing))
+            {
+                logger.Error($"Did you mean \"{methodNoCasing.Name}\"? Remember, Machina is case-sensitive.");
+            }
+            else
+            {
+                logger.Error($"No method found with the name \"{methodName}\".");
+            }
+            return false;
+        }
+        return true;
+    }
     #endregion
 
     #region Private Methods
