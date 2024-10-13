@@ -32,29 +32,29 @@ public partial class Robot
     /// Will be raised whenever an Action has been successfully issued and is scheduled for release to the device or compilation. 
     /// </summary>
     public event ActionIssuedHandler ActionIssued;
-    public delegate void ActionIssuedHandler(object sender, ActionIssuedArgs args);
-    internal virtual void OnActionIssued(ActionIssuedArgs args) => ActionIssued?.Invoke(this, args);
+    public delegate void ActionIssuedHandler(object sender, ActionIssuedEventArgs args);
+    internal virtual void OnActionIssued(ActionIssuedEventArgs args) => ActionIssued?.Invoke(this, args);
 
     /// <summary>
     /// Will be raised whenever an Action has been released to the device and is scheduled for execution.
     /// </summary>
     public event ActionReleasedHandler ActionReleased;
-    public delegate void ActionReleasedHandler(object sender, ActionReleasedArgs args);
-    internal virtual void OnActionReleased(ActionReleasedArgs args) => ActionReleased?.Invoke(this, args);
+    public delegate void ActionReleasedHandler(object sender, ActionReleasedEventArgs args);
+    internal virtual void OnActionReleased(ActionReleasedEventArgs args) => ActionReleased?.Invoke(this, args);
 
     /// <summary>
     /// Will be raised whenever an Action has completed execution on the device. 
     /// </summary>
     public event ActionExecutedHandler ActionExecuted;
-    public delegate void ActionExecutedHandler(object sender, ActionExecutedArgs args);
-    internal virtual void OnActionExecuted(ActionExecutedArgs args) => ActionExecuted?.Invoke(this, args);
+    public delegate void ActionExecutedHandler(object sender, ActionExecutedEventArgs args);
+    internal virtual void OnActionExecuted(ActionExecutedEventArgs args) => ActionExecuted?.Invoke(this, args);
 
     /// <summary>
     /// Will be raised whenever new information is available about the real-time information about the state of the device.
     /// </summary>
     public event MotionUpdateHandler MotionUpdate;
-    public delegate void MotionUpdateHandler(object sender, MotionUpdateArgs args);
-    internal virtual void OnMotionUpdate(MotionUpdateArgs args) => MotionUpdate?.Invoke(this, args);
+    public delegate void MotionUpdateHandler(object sender, MotionUpdateEventArgs args);
+    internal virtual void OnMotionUpdate(MotionUpdateEventArgs args) => MotionUpdate?.Invoke(this, args);
 
 
     #endregion

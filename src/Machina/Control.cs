@@ -772,7 +772,7 @@ class Control
     {
         Action lastAction = this.IssueCursor.GetLastAction();
 
-        ActionIssuedArgs args = new ActionIssuedArgs(lastAction, this.GetCurrentPosition(), this.GetCurrentRotation(), this.GetCurrentAxes(), this.GetCurrentExternalAxes());
+        ActionIssuedEventArgs args = new ActionIssuedEventArgs(lastAction, this.GetCurrentPosition(), this.GetCurrentRotation(), this.GetCurrentAxes(), this.GetCurrentExternalAxes());
 
         this.parentRobot.OnActionIssued(args);
     }
@@ -785,7 +785,7 @@ class Control
         Action lastAction = this.ReleaseCursor.GetLastAction();
         int pendingRelease = this.ReleaseCursor.ActionsPendingCount();
 
-        ActionReleasedArgs args = new ActionReleasedArgs(lastAction, pendingRelease, GetCurrentPosition(), GetCurrentRotation(), GetCurrentAxes(), GetCurrentExternalAxes());
+        ActionReleasedEventArgs args = new ActionReleasedEventArgs(lastAction, pendingRelease, GetCurrentPosition(), GetCurrentRotation(), GetCurrentAxes(), GetCurrentExternalAxes());
 
         this.parentRobot.OnActionReleased(args);
     }
@@ -799,7 +799,7 @@ class Control
         int pendingExecutionOnDevice = this.ExecutionCursor.ActionsPendingCount();
         int pendingExecutionTotal = this.ReleaseCursor.ActionsPendingCount() + pendingExecutionOnDevice;
 
-        ActionExecutedArgs args = new ActionExecutedArgs(lastAction, pendingExecutionOnDevice, pendingExecutionTotal, this.GetCurrentPosition(), this.GetCurrentRotation(), this.GetCurrentAxes(), this.GetCurrentExternalAxes());
+        ActionExecutedEventArgs args = new ActionExecutedEventArgs(lastAction, pendingExecutionOnDevice, pendingExecutionTotal, this.GetCurrentPosition(), this.GetCurrentRotation(), this.GetCurrentAxes(), this.GetCurrentExternalAxes());
 
         this.parentRobot.OnActionExecuted(args);
     }
@@ -809,7 +809,7 @@ class Control
     /// </summary>
     internal void RaiseMotionUpdateEvent()
     {
-        MotionUpdateArgs args = new MotionUpdateArgs(this.MotionCursor.position, this.MotionCursor.rotation, this.MotionCursor.axes, this.MotionCursor.externalAxesCartesian);
+        MotionUpdateEventArgs args = new MotionUpdateEventArgs(this.MotionCursor.position, this.MotionCursor.rotation, this.MotionCursor.axes, this.MotionCursor.externalAxesCartesian);
 
         this.parentRobot.OnMotionUpdate(args);
     }
